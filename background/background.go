@@ -58,7 +58,8 @@ func SetBg(file string) error {
 	}
 	defer regKey.Close()
 
-	err = regKey.SetStringValue("WallpaperStyle", "0")
+	//10填充，6适应，2拉伸，0平铺居中
+	err = regKey.SetStringValue("WallpaperStyle", "10")
 	if err != nil {
 		return err
 	}
