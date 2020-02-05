@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"wallpaper/utils"
 )
 
 func TestWallPaperFlash(tt *testing.T) {
@@ -21,22 +22,22 @@ func TestWallPaperFlash(tt *testing.T) {
 			continue
 		}
 
-		filePath := GetCurrentDirectory() + "/" + "image/" + t.Format("20060102")
+		filePath := utils.GetCurrentDirectory() + "/" + "image/" + t.Format("20060102")
 		fileName := filepath.Base(item.Path)
 
 		var ok bool = false
-		ok, err = PathExists(filePath)
+		ok, err = utils.PathExists(filePath)
 		if ok == true {
-			SaveFile(item.Path, filePath+"/"+fileName)
+			utils.SaveFile(item.Path, filePath+"/"+fileName)
 		} else if err == nil {
 			os.MkdirAll(filePath, os.ModeDir|0644)
 		} else {
 			continue
 		}
 
-		ok, err = PathExists(filePath + "/" + fileName)
+		ok, err = utils.PathExists(filePath + "/" + fileName)
 		if ok == false || (ok == true && err != nil) {
-			SaveFile(item.Path, filePath+"/"+fileName)
+			utils.SaveFile(item.Path, filePath+"/"+fileName)
 		}
 	}
 }

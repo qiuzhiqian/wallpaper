@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 	"wallpaper/background"
+	"wallpaper/utils"
 	"wallpaper/wallhaven"
 )
 
@@ -35,12 +36,12 @@ func Handler() {
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {
-	filePath := wallhaven.GetCurrentDirectory() + "/" + "image"
+	filePath := utils.GetCurrentDirectory() + "/" + "image"
 	fileName := filepath.Base(item.Path)
 
 	var ok bool = false
 	var err error
-	ok, err = wallhaven.PathExists(filePath)
+	ok, err = utils.PathExists(filePath)
 	if ok == false && err == nil {
 		os.MkdirAll(filePath, os.ModeDir|0644)
 	} else if ok == false && err != nil {
@@ -48,15 +49,15 @@ func saveHaven(item wallhaven.ImgInfo) string {
 	}
 
 	savename := filePath + "/" + fileName
-	ok, err = wallhaven.PathExists(savename)
+	ok, err = utils.PathExists(savename)
 	if ok == false || (ok == true && err != nil) {
 		tempname := savename + ".wptemp"
-		ok, err = wallhaven.PathExists(tempname)
+		ok, err = utils.PathExists(tempname)
 		if ok == true && err == nil {
 			os.Remove(tempname)
 		}
 
-		err = wallhaven.SaveFile(item.Path, tempname)
+		err = utils.SaveFile(item.Path, tempname)
 		if err != nil {
 			return ""
 		}
