@@ -47,8 +47,13 @@ type SearchList struct {
 	Meta MetaStruct
 }
 
-func Searching(page int, v interface{}) error {
-	resp, err := http.Get("https://wallhaven.cc/api/v1/search" + "?" + "categories=anime&" + "page=" + strconv.FormatInt(int64(page), 10))
+type Param struct {
+	Page       int
+	Categories string
+}
+
+func Searching(p Param, v interface{}) error {
+	resp, err := http.Get("https://wallhaven.cc/api/v1/search" + "?" + "categories=" + p.Categories + "&" + "page=" + strconv.FormatInt(int64(p.Page), 10))
 	if err != nil {
 		// handle error
 		return err

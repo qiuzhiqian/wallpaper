@@ -1,0 +1,8 @@
+title="config"
+
+[manager]
+period=1800
+
+[wallhaven]
+page=1
+categories="anime"

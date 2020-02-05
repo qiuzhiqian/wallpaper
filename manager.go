@@ -11,9 +11,13 @@ import (
 	"wallpaper/wallhaven"
 )
 
-func Handler() {
+func Handler(c Config) {
+	wp := wallhaven.Param{
+		Page:       c.Wh.Page,
+		Categories: c.Wh.Categories,
+	}
 	var jsondata wallhaven.SearchList
-	err := wallhaven.Searching(1, &jsondata)
+	err := wallhaven.Searching(wp, &jsondata)
 	if err != nil {
 		fmt.Println("err:", err)
 	}

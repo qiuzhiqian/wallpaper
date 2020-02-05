@@ -9,8 +9,12 @@ import (
 )
 
 func TestWallPaperFlash(tt *testing.T) {
+	wp := Param{
+		Page:       1,
+		Categories: "anime",
+	}
 	var jsondata SearchList
-	err := Searching(1, &jsondata)
+	err := Searching(wp, &jsondata)
 	if err != nil {
 		tt.Log("err:", err)
 	}
