@@ -88,7 +88,11 @@ func SaveFile(url, filename string) error {
 
 	defer f.Close()
 
-	io.Copy(f, res.Body)
+	_, err = io.Copy(f, res.Body)
+	if err != nil {
+		fmt.Println("err:", err)
+		return err
+	}
 	return nil
 }
 

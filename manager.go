@@ -26,8 +26,12 @@ func Handler() {
 	fmt.Println("index:", index)
 
 	file := saveHaven(jsondata.Data[index])
-
+	if file == "" {
+		return
+	}
+	fmt.Println("download success.")
 	background.SetBg(file)
+	fmt.Println("set background success.")
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {
@@ -43,9 +47,26 @@ func saveHaven(item wallhaven.ImgInfo) string {
 		return ""
 	}
 
-	ok, err = wallhaven.PathExists(filePath + "/" + fileName)
+	savename := filePath + "/" + fileName
+	ok, err = wallhaven.PathExists(savename)
 	if ok == false || (ok == true && err != nil) {
-		wallhaven.SaveFile(item.Path, filePath+"/"+fileName)
+		tempname := savename + ".wptemp"
+		ok, err = wallhaven.PathExists(tempname)
+		if ok == true && err == nil {
+			os.Remove(tempname)
+		}
+
+		err = wallhaven.SaveFile(item.Path, tempname)
+		if err != nil {
+			return ""
+		}
+
+		//下载成功，重命名
+		err = os.Rename(tempname, savename)
+		if err != nil {
+			fmt.Println("err:", err)
+			return ""
+		}
 	}
-	return filePath + "/" + fileName
+	return savename
 }
