@@ -21,6 +21,7 @@ type Manager struct {
 type Wallhaven struct {
 	Page       int
 	Categories string
+	Tag string
 }
 
 func main() {

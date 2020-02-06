@@ -15,6 +15,7 @@ func Handler(c Config) {
 	wp := wallhaven.Param{
 		Page:       c.Wh.Page,
 		Categories: c.Wh.Categories,
+		Tag: c.Wh.Tag,
 	}
 	var jsondata wallhaven.SearchList
 	err := wallhaven.Searching(wp, &jsondata)

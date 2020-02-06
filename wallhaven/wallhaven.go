@@ -50,10 +50,11 @@ type SearchList struct {
 type Param struct {
 	Page       int
 	Categories string
+	Tag string
 }
 
 func Searching(p Param, v interface{}) error {
-	resp, err := http.Get("https://wallhaven.cc/api/v1/search" + "?" + "categories=" + p.Categories + "&" + "page=" + strconv.FormatInt(int64(p.Page), 10))
+	resp, err := http.Get("https://wallhaven.cc/api/v1/search" + "?" + "q=" + p.Tag + "&" + "page=" + strconv.FormatInt(int64(p.Page), 10))
 	if err != nil {
 		// handle error
 		return err
