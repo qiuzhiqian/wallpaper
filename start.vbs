@@ -1,3 +1,7 @@
 Set ws = CreateObject("Wscript.Shell")
-ws.run "cmd /c E:\\code\\code_go\\wallhaven\\wallpaper.exe",vbhide
+
+test = createobject("Scripting.FileSystemObject").GetFile(Wscript.ScriptFullName).ParentFolder.Path
+appPath = test+"\start.ps1"
+startCmd = "powershell "+appPath
+ws.run startCmd,vbhide
 
