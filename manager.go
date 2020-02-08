@@ -58,7 +58,7 @@ func saveHaven(item wallhaven.ImgInfo) string {
 	var err error
 	ok, err = utils.PathExists(filePath)
 	if ok == false && err == nil {
-		os.MkdirAll(filePath, os.ModeDir|0644)
+		os.MkdirAll(filePath, os.ModeDir|0755)
 	} else if ok == false && err != nil {
 		return ""
 	}
