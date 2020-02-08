@@ -4,6 +4,15 @@ title="config"
 period=1800
 
 [wallhaven]
+[[wallhaven.config]]
 page=1
+categories="anime"
+tag="anime"
+[[wallhaven.config]]
+page=2
+categories="anime"
+tag="anime"
+[[wallhaven.config]]
+page=3
 categories="anime"
 tag="anime"

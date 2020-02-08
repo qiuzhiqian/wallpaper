@@ -12,26 +12,36 @@ import (
 )
 
 func Handler(c Config) {
-	wp := wallhaven.Param{
-		Page:       c.Wh.Page,
-		Categories: c.Wh.Categories,
-		Tag: c.Wh.Tag,
-	}
-	var jsondata wallhaven.SearchList
-	err := wallhaven.Searching(wp, &jsondata)
-	if err != nil {
-		fmt.Println("err:", err)
+	var DataList []wallhaven.ImgInfo
+	for _, item := range c.Wh.Config {
+		wp := wallhaven.Param{
+			Page:       item.Page,
+			Categories: item.Categories,
+			Tag:        item.Tag,
+		}
+		var jsondata wallhaven.SearchList
+		err := wallhaven.Searching(wp, &jsondata)
+		if err != nil {
+			fmt.Println("err:", err)
+		}
+
+		if len(jsondata.Data) == 0 {
+			continue
+		}
+
+		DataList = append(DataList, jsondata.Data...)
+		fmt.Println("data len:", len(DataList))
 	}
 
-	if len(jsondata.Data) == 0 {
+	if len(DataList) == 0 {
 		return
 	}
 
 	rand.Seed(time.Now().Unix())
-	index := rand.Intn(len(jsondata.Data))
+	index := rand.Intn(len(DataList))
 	fmt.Println("index:", index)
 
-	file := saveHaven(jsondata.Data[index])
+	file := saveHaven(DataList[index])
 	if file == "" {
 		return
 	}

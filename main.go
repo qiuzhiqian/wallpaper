@@ -19,9 +19,13 @@ type Manager struct {
 }
 
 type Wallhaven struct {
+	Config []WallhavenConfig `toml:"config"`
+}
+
+type WallhavenConfig struct {
 	Page       int
 	Categories string
-	Tag string
+	Tag        string
 }
 
 func main() {
