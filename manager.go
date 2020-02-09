@@ -46,7 +46,10 @@ func Handler(c Config) {
 		return
 	}
 	fmt.Println("download success.")
-	background.SetBg(file)
+	err := background.SetBg(file)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
 	fmt.Println("set background success.")
 }
 

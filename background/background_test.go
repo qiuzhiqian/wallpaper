@@ -8,3 +8,10 @@ func TestSetBg(t *testing.T) {
 		t.Log("err:", err)
 	}
 }
+
+func TestSetBgLinux(t *testing.T) {
+	err := SetBg("/home/xml/code/code_go/wallpaper/image/wallhaven-39e6pv.jpg")
+	if err != nil {
+		t.Log("err:", err)
+	}
+}
