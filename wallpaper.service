@@ -1,12 +1,8 @@
 [Unit]
 Description=Wallpaper
-After=network.target
-After=syslog.target
 
 [Service]
-Type=simple
-ExecStart=/filepath/Wallpaper
-Restart=always
+ExecStart=/filepath/wallpaper
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

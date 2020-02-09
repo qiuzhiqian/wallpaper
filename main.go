@@ -29,6 +29,7 @@ type WallhavenConfig struct {
 }
 
 func main() {
+	fmt.Println("version:", "1.0.0")
 	var cfg Config
 	_, err := toml.DecodeFile(utils.GetCurrentDirectory()+"/config.toml", &cfg)
 	if err != nil {

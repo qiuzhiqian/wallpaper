@@ -24,4 +24,8 @@
 右键使用powershell打开install.ps1文件。会显示处理菜单，第一次运行请选择安装，安装过程其实就是设置开机启动而已，然后选择运行即可。
 
 ### linux kde
-将wallpaper应用程序启动即可，推荐添加到开机中启动
+将wallpaper应用程序启动即可，推荐添加到开机中启动。
+如果使用systemd管理开机启动项的话，则进行一下操作：  
+1. 修改wallpaper.service中的路径为实际wallpaper路径
+2. 复制wallpaper.service到/usr/lib/systemd/user中。
+3. 执行systemctl --user enable wallpaper.service。这样该应用就添加到了开机启动中
