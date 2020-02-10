@@ -29,6 +29,7 @@ type WallhavenConfig struct {
 }
 
 func main() {
+	cmdch:=make(chan int,0)
 	fmt.Println("version:", "1.0.0")
 	var cfg Config
 	_, err := toml.DecodeFile(utils.GetCurrentDirectory()+"/config.toml", &cfg)
@@ -38,6 +39,11 @@ func main() {
 
 	for {
 		Handler(cfg)
-		time.Sleep(time.Second * time.Duration(cfg.Mgr.Period))
+		select {
+		case num:=<- cmdch:
+			fmt.Println("cmdch:",num)
+		case <-time.After(time.Second * time.Duration(cfg.Mgr.Period)):
+			fmt.Println("do next")
+		}
 	}
 }
