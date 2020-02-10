@@ -2,6 +2,7 @@ title="config"
 
 [manager]
 period=1800
+mode="wallhaven"
 
 [wallhaven]
 [[wallhaven.config]]
