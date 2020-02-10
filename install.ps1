@@ -33,7 +33,7 @@ Function AppRunning(){
 Function Register(){
     $exist=AppRegisted
     if($exist -eq 0){
-        $appPath=""""+$currentPth+"\start.vbs"+""""
+        $appPath=""""+$currentPth+"\start.bat"+""""
         $appPath
         New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Run -Name Wallpaper -PropertyType String -Value $appPath
     }
@@ -82,9 +82,11 @@ Function CmdMenu(){
             if($state -eq 1){
                 Get-Process -Name wallpaper | Stop-Process
             }
-            $appPath=$currentPth+"\start.ps1"
-            #cscript $appPath
-            powershell $appPath
+            $appPath="'"+$currentPth+"\start.ps1"+"'"
+            Write-Host $appPath
+            $appPath
+            #. $appPath
+			#& {set-executionpolicy Remotesigned -Scope Process; $appPath }
             Write-Host "#######################################################" -ForegroundColor Green
         }
         4 {
