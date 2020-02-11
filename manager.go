@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 	"wallpaper/background"
@@ -12,40 +13,57 @@ import (
 )
 
 func Handler(c Config) {
-	var DataList []wallhaven.ImgInfo
-	for _, item := range c.Wh.Config {
-		wp := wallhaven.Param{
-			Page:       item.Page,
-			Categories: item.Categories,
-			Tag:        item.Tag,
-		}
-		var jsondata wallhaven.SearchList
-		err := wallhaven.Searching(wp, &jsondata)
-		if err != nil {
-			fmt.Println("err:", err)
+	var file string
+	switch c.Mgr.Mode {
+	case "wallhaven":
+		var DataList []wallhaven.ImgInfo
+		for _, item := range c.Wh.Config {
+			wp := wallhaven.Param{
+				Page:       item.Page,
+				Categories: item.Categories,
+				Tag:        item.Tag,
+			}
+			var jsondata wallhaven.SearchList
+			err := wallhaven.Searching(wp, &jsondata)
+			if err != nil {
+				fmt.Println("err:", err)
+			}
+
+			if len(jsondata.Data) == 0 {
+				continue
+			}
+
+			DataList = append(DataList, jsondata.Data...)
+			fmt.Println("data len:", len(DataList))
 		}
 
-		if len(jsondata.Data) == 0 {
-			continue
+		if len(DataList) == 0 {
+			return
 		}
 
-		DataList = append(DataList, jsondata.Data...)
-		fmt.Println("data len:", len(DataList))
+		rand.Seed(time.Now().Unix())
+		index := rand.Intn(len(DataList))
+		fmt.Println("index:", index)
+
+		file = saveHaven(DataList[index])
+		if file == "" {
+			return
+		}
+		fmt.Println("download success.")
+	case "offline":
+		localList := GetLocalFile(utils.GetCurrentDirectory()+"/"+"image", []string{".png", ".jpg", ".jpeg"})
+
+		if len(localList) == 0 {
+			return
+		}
+
+		rand.Seed(time.Now().Unix())
+		index := rand.Intn(len(localList))
+		fmt.Println("index:", index)
+
+		file = localList[index]
 	}
 
-	if len(DataList) == 0 {
-		return
-	}
-
-	rand.Seed(time.Now().Unix())
-	index := rand.Intn(len(DataList))
-	fmt.Println("index:", index)
-
-	file := saveHaven(DataList[index])
-	if file == "" {
-		return
-	}
-	fmt.Println("download success.")
 	err := background.SetBg(file)
 	if err != nil {
 		fmt.Println("err:", err)
@@ -88,4 +106,27 @@ func saveHaven(item wallhaven.ImgInfo) string {
 		}
 	}
 	return savename
+}
+
+func GetLocalFile(root string, filter []string) []string {
+	var localList []string
+	filepath.Walk(root, func(pathname string, info os.FileInfo, err error) error {
+		fmt.Println(pathname)
+		if info.Mode().IsRegular() {
+			ext := path.Ext(pathname)
+			var match bool = false
+
+			for _, item := range filter {
+				if ext == item {
+					match = true
+					break
+				}
+			}
+			if match {
+				localList = append(localList, pathname)
+			}
+		}
+		return nil
+	})
+	return localList
 }

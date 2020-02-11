@@ -15,3 +15,8 @@ func TestMain(t *testing.T) {
 		fmt.Println("err:", err)
 	}
 }
+
+func TestLocal(t *testing.T) {
+	localList := GetLocalFile(utils.GetCurrentDirectory()+"/"+"image", []string{".png", ".jpg", ".jpeg"})
+	t.Log(localList)
+}
