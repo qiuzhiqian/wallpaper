@@ -1,6 +1,7 @@
 package main
 
 import (
+	"C"
 	"fmt"
 	"time"
 	"wallpaper/utils"
@@ -29,7 +30,8 @@ type WallhavenConfig struct {
 	Tag        string
 }
 
-func main() {
+//export running
+func running(){
 	cmdch := make(chan int, 0)
 	fmt.Println("version:", "1.0.0")
 	var cfg Config
@@ -47,4 +49,8 @@ func main() {
 			fmt.Println("do next")
 		}
 	}
+}
+
+func main() {
+	running()
 }
