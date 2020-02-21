@@ -134,16 +134,17 @@ GET https://wallhaven.cc/api/v1/search
 |===
 |Parameter |Allowed values / Examples|Description
 
-|q
+.8+|q
 |tagname - search fuzzily for a tag/keyword
--tagname - exclude a tag/keyword
-+tag1 +tag2 - must have tag1 and tag2
-+tag1 -tag2 - must have tag1 and NOT tag2
-@username - user uploads
-id:123 - Exact tag search (can not be combined)
-type:{png/jpg} - Search for file type (jpg = jpeg)
-like:wallpaper ID - Find wallpapers with similar tags
-|Search query - Your main way of finding what you're looking for
+.8+|Search query - Your main way of finding what you're looking for
+|-tagname - exclude a tag/keyword
+|+tag1 +tag2 - must have tag1 and tag2
+|+tag1 -tag2 - must have tag1 and NOT tag2
+|@username - user uploads
+|id:123 - Exact tag search (can not be combined)
+|type:{png/jpg} - Search for file type (jpg = jpeg)
+|like:wallpaper ID - Find wallpapers with similar tags
+
 
 |categories
 |100/101/111*/etc (general/anime/people)
@@ -222,22 +223,24 @@ for (i=0;i<Desktops.length;i++) {
 
 Replace /PATH/TO/IMAGE.png with appropriate path to wallpaper.
 
-[原博客](http://ivo-wang.github.io/2018/02/27/kde-wallpaper-command-set/)
+http://ivo-wang.github.io/2018/02/27/kde-wallpaper-command-set/[原博客]
 
-## Gnome更换锁屏和背景壁纸
+== Gnome更换锁屏和背景壁纸
 
 在设置桌面及锁屏背景的时候，注意Picture标签下只显示~/Pictures文件夹下的图片。如果您想使用不在该文件夹下的图片，请使用下列命令：
 
-### 对于桌面背景：
+=== 对于桌面背景：
 
-```bash
+[source.bash]
+----
 $ gsettings set org.gnome.desktop.background picture-uri 'file:///path/to/my/picture.jpg'
-```
+----
 
-### 对于锁屏背景
+=== 对于锁屏背景
 
-```bash
+[source.bash]
+----
 $ gsettings set org.gnome.desktop.screensaver picture-uri 'file:///path/to/my/picture.jpg'
-```
+----
 
-[原文地址](https://wiki.archlinux.org/index.php/GNOME)
+https://wiki.archlinux.org/index.php/GNOME[原文地址]
