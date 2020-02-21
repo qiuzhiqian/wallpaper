@@ -30,12 +30,23 @@ type WallhavenConfig struct {
 	Tag        string
 }
 
+var cmdch chan int
+
+const (
+	version string = "1.1.0"
+)
+
+//export getVersion
+func getVersion() string {
+	return version
+}
+
 //export running
-func running(){
-	cmdch := make(chan int, 0)
-	fmt.Println("version:", "1.0.0")
+func running(configpath string) {
+	cmdch = make(chan int, 0)
+	fmt.Println("core lib version:", version)
 	var cfg Config
-	_, err := toml.DecodeFile(utils.GetCurrentDirectory()+"/config.toml", &cfg)
+	_, err := toml.DecodeFile(configpath, &cfg)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
@@ -51,6 +62,11 @@ func running(){
 	}
 }
 
+//export next
+func next() {
+	cmdch <- 0
+}
+
 func main() {
-	running()
+	running(utils.GetCurrentDirectory() + "/config.toml")
 }
