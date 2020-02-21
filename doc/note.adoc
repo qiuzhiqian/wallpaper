@@ -1,0 +1,243 @@
+= wallpaper开发笔记
+
+一般的桌面都有一个自动切换壁纸的功能，但是这个功能有个很致命德缺点：只能切换本地指定目录下德壁纸。我一直想找一个能自动切换网络上面的壁纸应用，然而并没有发现合适的，所以打算自己写一个。
+
+既然是要自己写一个网络壁纸应用，需要实现的功能也就是两个：
+1. 获取网络壁纸
+2. 设置壁纸
+
+== 获取网络壁纸
+既然是网络壁纸，获取方式无非是两种：
+1. api
+2. 爬虫
+
+api方式自然是最高效和简单德，但是支持api方式的图片网站都很少，更别说壁纸网站了。
+爬虫方式虽然麻烦一些，而且效率低一些，但是通用性却更高。
+
+从多方面考虑后，前期德版本仅支持api方式，因为更加简单。
+
+=== api图片网站
+
+.图片网站
+|===
+|API | Description | Auth | HTTPS | CORS |
+
+| https://www.flickr.com/services/api/[Flickr] | Flickr Services | `OAuth` | Yes | Unknown |
+| http://developers.gettyimages.com/en/[Getty Images] | Build applications using the world's most powerful imagery | `OAuth` | Yes | Unknown |
+| https://developers.gfycat.com/api/[Gfycat] | Jiffier GIFs | `OAuth` | Yes | Unknown |
+| https://developers.giphy.com/docs/[Giphy] | Get all your gifs | `apiKey` | Yes | Unknown |
+| https://gyazo.com/api/docs[Gyazo] | Upload images | `apiKey` | Yes | Unknown |
+| https://apidocs.imgur.com/[Imgur] | Images | `OAuth` | Yes | Unknown |
+| https://picsum.photos/[Lorem Picsum] | Images from Unsplash | No | Yes | Unknown |
+| https://www.pexels.com/api/[Pexels] | Free Stock Photos and Videos | `apiKey` | Yes | Yes |
+| https://pixabay.com/sk/service/about/api/[Pixabay] | Photography | `apiKey` | Yes | Unknown |
+| https://pixhost.org/api/index.html[Pixhost] | Upload images, photos, galleries | No | Yes | Unknown |
+| https://placekitten.com/[PlaceKitten] | Resizable kitten placeholder images | No | Yes | Unknown |
+| https://screenshotlayer.com[ScreenShotLayer] | URL 2 Image | No | Yes | Unknown |
+| https://unsplash.com/developers[Unsplash] | Photography | `OAuth` | Yes | Unknown |
+| https://wallhaven.cc/help/api[Wallhaven] | Wallpapers | `apiKey` | Yes | Unknown |
+|===
+
+https://github.com/public-apis/public-apis[资料原网址]
+
+综合考虑后，最终选择使用Wallhaven网站，原因是该网站本身就是一个壁纸网站，所以图片更加适合壁纸德风格，而且壁纸数量庞大，api使用也比较简单，国内访问速度也不慢。
+
+=== wallhaven支持的api
+wallhaven支持多种api，我们只使用其中的查询api：
+
+[source.json]
+----
+GET https://wallhaven.cc/api/v1/search
+{
+  "data": [
+    {
+      "id": "94x38z",
+      "url": "https://wallhaven.cc/w/94x38z",
+      "short_url": "http://whvn.cc/94x38z",
+      "views": 6,
+      "favorites": 0,
+      "source": "",
+      "purity": "sfw",
+      "category": "anime",
+      "dimension_x": 6742,
+      "dimension_y": 3534,
+      "resolution": "6742x3534",
+      "ratio": "1.91",
+      "file_size": 5070446,
+      "file_type": "image/jpeg",
+      "created_at": "2018-10-31 01:23:10",
+      "colors": [
+        "#000000",
+        "#abbcda",
+        "#424153",
+        "#66cccc",
+        "#333399"
+      ],
+      "path": "https://w.wallhaven.cc/94/wallhaven-94x38z.jpg",
+      "thumbs": {
+        "large": "https://th.wallhaven.cc/lg/94/94x38z.jpg",
+        "original": "https://th.wallhaven.cc/orig/94/94x38z.jpg",
+        "small": "https://th.wallhaven.cc/small/94/94x38z.jpg"
+      }
+    },
+    {
+      "id": "ze1p56",
+      "url": "https://wallhaven.cc/w/ze1p56",
+      "short_url": "http://whvn.cc/ze1p56",
+      "views": 11,
+      "favorites": 0,
+      "source": "",
+      "purity": "sfw",
+      "category": "anime",
+      "dimension_x": 3779,
+      "dimension_y": 2480,
+      "resolution": "3779x2480",
+      "ratio": "1.52",
+      "file_size": 1011043,
+      "file_type": "image/jpeg",
+      "created_at": "2018-10-07 17:05:28",
+      "colors": [
+        "#424153",
+        "#e7d8b1",
+        "#cc3333",
+        "#ffffff",
+        "#cccccc"
+      ],
+      "path": "https://w.wallhaven.cc/ze/wallhaven-ze1p56.jpg",
+      "thumbs": {
+        "large": "https://th.wallhaven.cc/lg/ze/ze1p56.jpg",
+        "original": "https://th.wallhaven.cc/orig/ze/ze1p56.jpg",
+        "small": "https://th.wallhaven.cc/small/ze/ze1p56.jpg"
+      }
+    }, 
+✂ --- snip ---
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 36,
+    "per_page": 24,
+    "total": 848
+    "query": "test" or null
+## --- for exact tag searches ---
+    "query": {
+      "id": 1,
+      "tag": "anime"
+    }
+    "seed": "abc123" or null
+  }
+}
+----
+
+这个api支持若干参数：
+
+.参数列表
+|===
+|Parameter |Allowed values / Examples|Description
+
+|q
+|tagname - search fuzzily for a tag/keyword
+-tagname - exclude a tag/keyword
++tag1 +tag2 - must have tag1 and tag2
++tag1 -tag2 - must have tag1 and NOT tag2
+@username - user uploads
+id:123 - Exact tag search (can not be combined)
+type:{png/jpg} - Search for file type (jpg = jpeg)
+like:wallpaper ID - Find wallpapers with similar tags
+|Search query - Your main way of finding what you're looking for
+
+|categories
+|100/101/111*/etc (general/anime/people)
+|Turn categories on(1) or off(0)
+
+|purity
+|100*/110/111/etc (sfw/sketchy/nsfw)
+|Turn purities on(1) or off(0)
+NSFW requires a valid API key
+
+|sorting
+|date_added*, relevance, random, views, favorites, toplist
+|Method of sorting results
+
+|order
+|desc*, asc
+|Sorting order
+
+|topRange
+|1d, 3d, 1w,1M*, 3M, 6M, 1y
+|Sorting MUST be set to 'toplist'
+
+|atleast
+|1920x1080
+|Minimum resolution allowed
+
+|resolutions
+|1920x1080,1920x1200
+|List of exact wallpaper resolutions
+Single resolution allowed
+
+|ratios
+|16x9,16x10
+|List of aspect ratios
+Single ratio allowed
+
+|colors
+|660000 990000 cc0000 cc3333 ea4c88 993399 663399 333399 0066cc 0099cc 66cccc 77cc33 669900 336600 666600 999900 cccc33 ffff00 ffcc33 ff9900 ff6600 cc6633 996633 663300 000000 999999 cccccc ffffff 424153
+|Search by color
+
+|page
+|1 -¹
+|Pagination
+¹ Not actually infinite
+
+|seed
+|[a-zA-Z0-9]{6}
+|Optional seed for random results
+|===
+
+我们暂时只是用两个参数，q和page，这两个参数值使用配置文件指定。
+一个示范的GET请求是这样的：
+
+[source.bash]
+----
+https://wallhaven.cc/api/v1/search?q=anime&page=1
+----
+
+## KDE命令行更换壁纸
+
+更改下面的代码 替换/PATH/TO/IMAGE.png 这一部分即可
+
+[source.bash]
+----
+dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string:
+var Desktops = desktops();
+for (i=0;i<Desktops.length;i++) {
+        d = Desktops[i];
+        d.wallpaperPlugin = "org.kde.image";
+        d.currentConfigGroup = Array("Wallpaper",
+                                    "org.kde.image",
+                                    "General");
+        d.writeConfig("Image", "file:///PATH/TO/IMAGE.png");
+}'
+----
+
+Replace /PATH/TO/IMAGE.png with appropriate path to wallpaper.
+
+[原博客](http://ivo-wang.github.io/2018/02/27/kde-wallpaper-command-set/)
+
+## Gnome更换锁屏和背景壁纸
+
+在设置桌面及锁屏背景的时候，注意Picture标签下只显示~/Pictures文件夹下的图片。如果您想使用不在该文件夹下的图片，请使用下列命令：
+
+### 对于桌面背景：
+
+```bash
+$ gsettings set org.gnome.desktop.background picture-uri 'file:///path/to/my/picture.jpg'
+```
+
+### 对于锁屏背景
+
+```bash
+$ gsettings set org.gnome.desktop.screensaver picture-uri 'file:///path/to/my/picture.jpg'
+```
+
+[原文地址](https://wiki.archlinux.org/index.php/GNOME)
