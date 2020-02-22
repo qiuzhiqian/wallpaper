@@ -1,11 +1,14 @@
 package main
 
 import (
-	"C"
 	"fmt"
 	"time"
 	"wallpaper/utils"
 
+	"fyne.io/fyne"
+	"fyne.io/fyne/app"
+	"fyne.io/fyne/layout"
+	"fyne.io/fyne/widget"
 	"github.com/BurntSushi/toml"
 )
 
@@ -37,12 +40,10 @@ const (
 	version string = "1.1.0"
 )
 
-//export getVersion
 func getVersion() string {
 	return version
 }
 
-//export libInit
 func libInit(configpath string) {
 	cmdch = make(chan int, 0)
 	fmt.Println("core lib version:", version)
@@ -52,7 +53,6 @@ func libInit(configpath string) {
 	}
 }
 
-//export running
 func running() {
 	for {
 		Handler(cfg)
@@ -65,12 +65,38 @@ func running() {
 	}
 }
 
-//export next
 func next() {
 	cmdch <- 0
 }
 
+func loadUI() {
+	appObj := app.New()
+
+	w := appObj.NewWindow("Wallpaper")
+	w.SetContent(fyne.NewContainerWithLayout(
+		layout.NewGridLayout(1),
+		widget.NewLabel("version:"+getVersion()),
+		fyne.NewContainerWithLayout(
+			layout.NewGridLayout(2),
+			widget.NewCheck("Auto run", func(checked bool) {
+				fmt.Println("check:", checked)
+			}),
+			widget.NewButton("Next", func() {
+				next()
+			}),
+		),
+		widget.NewButton("Quit", func() {
+			appObj.Quit()
+		}),
+	))
+
+	w.Resize(fyne.Size{Width: 300, Height: 100})
+
+	w.ShowAndRun()
+}
+
 func main() {
 	libInit(utils.GetCurrentDirectory() + "/config.toml")
-	running()
+	go running()
+	loadUI()
 }
