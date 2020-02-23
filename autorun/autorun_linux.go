@@ -1,5 +1,9 @@
 package autorun
 
-func enable(yes bool) bool {
+func Enable(yes bool) bool {
 	return false
+}
+
+func IsEnable() bool {
+	return true
 }

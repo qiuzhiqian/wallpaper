@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"wallpaper/autorun"
 	"wallpaper/utils"
 
 	"fyne.io/fyne"
@@ -35,6 +36,8 @@ type WallhavenConfig struct {
 
 var cmdch chan int
 var cfg Config
+
+var check *widget.Check
 
 const (
 	version string = "1.1.0"
@@ -72,15 +75,21 @@ func next() {
 func loadUI() {
 	appObj := app.New()
 
+	check = widget.NewCheck("Auto run", func(checked bool) {
+		fmt.Println("check:", checked)
+		res := autorun.Enable(checked)
+		if !res {
+			check.SetChecked(!checked)
+		}
+	})
+
 	w := appObj.NewWindow("Wallpaper")
 	w.SetContent(fyne.NewContainerWithLayout(
 		layout.NewGridLayout(1),
 		widget.NewLabel("version:"+getVersion()),
 		fyne.NewContainerWithLayout(
 			layout.NewGridLayout(2),
-			widget.NewCheck("Auto run", func(checked bool) {
-				fmt.Println("check:", checked)
-			}),
+			check,
 			widget.NewButton("Next", func() {
 				next()
 			}),

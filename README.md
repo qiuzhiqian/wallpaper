@@ -5,7 +5,9 @@
 ## 预览
 ![window预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_1.png)
 
-![linux kde预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_12.png)
+![linux kde预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_2.png)
+
+![设置界面](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_3.png)
 
 ## 特性
 - 从wallhaven获取壁纸列表。
@@ -21,7 +23,7 @@
 ## 使用
 
 ### windows
-右键使用powershell打开install.ps1文件。会显示处理菜单，第一次运行请选择安装，安装过程其实就是设置开机启动而已，然后选择运行即可。
+双击应用程序，将开机启动勾选。
 
 ### linux kde
 将wallpaper应用程序启动即可，推荐添加到开机中启动。
