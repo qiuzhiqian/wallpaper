@@ -53,13 +53,13 @@ type Param struct {
 	Tag        string
 }
 
-func Searching(p Param, v interface{}) error {
+func Searching(p Param) (*SearchList, error) {
 	var urlstr string = "https://wallhaven.cc/api/v1/search" + "?" + "q=" + p.Tag + "&" + "page=" + strconv.FormatInt(int64(p.Page), 10)
 	fmt.Println("url:", urlstr)
 	resp, err := http.Get(urlstr)
 	if err != nil {
 		// handle error
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -67,14 +67,15 @@ func Searching(p Param, v interface{}) error {
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("err:", err)
-		return err
+		return nil, err
 	}
 
-	err = json.Unmarshal(body, v)
+	var v SearchList
+	err = json.Unmarshal(body, &v)
 	if err != nil {
 		fmt.Println("err:", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &v, nil
 }

@@ -13,8 +13,8 @@ func TestWallPaperFlash(tt *testing.T) {
 		Page:       1,
 		Categories: "anime",
 	}
-	var jsondata SearchList
-	err := Searching(wp, &jsondata)
+
+	jsondata, err := Searching(wp)
 	if err != nil {
 		tt.Log("err:", err)
 	}

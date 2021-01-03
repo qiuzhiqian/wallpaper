@@ -40,7 +40,7 @@ var cfg Config
 var check *widget.Check
 
 const (
-	version string = "1.1.0"
+	version string = "1.2.0"
 )
 
 func getVersion() string {

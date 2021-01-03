@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"os/user"
 	"path"
 	"path/filepath"
 	"time"
@@ -23,8 +24,8 @@ func Handler(c Config) {
 				Categories: item.Categories,
 				Tag:        item.Tag,
 			}
-			var jsondata wallhaven.SearchList
-			err := wallhaven.Searching(wp, &jsondata)
+
+			jsondata, err := wallhaven.Searching(wp)
 			if err != nil {
 				fmt.Println("err:", err)
 			}
@@ -72,11 +73,13 @@ func Handler(c Config) {
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {
-	filePath := utils.GetCurrentDirectory() + "/" + "image"
+	filePath, err := getImageDir()
+	if err != nil {
+		return ""
+	}
 	fileName := filepath.Base(item.Path)
 
 	var ok bool = false
-	var err error
 	ok, err = utils.PathExists(filePath)
 	if ok == false && err == nil {
 		os.MkdirAll(filePath, os.ModeDir|0755)
@@ -106,6 +109,14 @@ func saveHaven(item wallhaven.ImgInfo) string {
 		}
 	}
 	return savename
+}
+
+func getImageDir() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(u.HomeDir, ".wallpaper", "wallhaven"), nil
 }
 
 func GetLocalFile(root string, filter []string) []string {
