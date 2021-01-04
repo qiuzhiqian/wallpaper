@@ -11,6 +11,8 @@ import (
 	"wallpaper/background"
 	"wallpaper/utils"
 	"wallpaper/wallhaven"
+
+	"gitee.com/qiuzhiqian/downloader"
 )
 
 func Handler(c Config) {
@@ -73,42 +75,25 @@ func Handler(c Config) {
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {
-	filePath, err := getImageDir()
+	fileDir, err := getImageDir()
 	if err != nil {
 		return ""
 	}
-	fileName := filepath.Base(item.Path)
 
 	var ok bool = false
-	ok, err = utils.PathExists(filePath)
+	ok, err = utils.PathExists(fileDir)
 	if ok == false && err == nil {
-		os.MkdirAll(filePath, os.ModeDir|0755)
+		os.MkdirAll(fileDir, os.ModeDir|0755)
 	} else if ok == false && err != nil {
 		return ""
 	}
 
-	savename := filePath + "/" + fileName
-	ok, err = utils.PathExists(savename)
-	if ok == false || (ok == true && err != nil) {
-		tempname := savename + ".wptemp"
-		ok, err = utils.PathExists(tempname)
-		if ok == true && err == nil {
-			os.Remove(tempname)
-		}
-
-		err = utils.SaveFile(item.Path, tempname)
-		if err != nil {
-			return ""
-		}
-
-		//下载成功，重命名
-		err = os.Rename(tempname, savename)
-		if err != nil {
-			fmt.Println("err:", err)
-			return ""
-		}
+	fmt.Println("url:", item.Path)
+	saveName, err := downloader.DownloadWithProgress(item.Path, fileDir, func(_, _ int) {})
+	if err != nil {
+		return ""
 	}
-	return savename
+	return saveName
 }
 
 func getImageDir() (string, error) {
