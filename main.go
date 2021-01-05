@@ -4,38 +4,14 @@ import (
 	"fmt"
 	"time"
 	"wallpaper/autorun"
-	"wallpaper/utils"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
-	"github.com/BurntSushi/toml"
 )
 
-type Config struct {
-	Title string
-	Mgr   Manager   `toml:"manager"`
-	Wh    Wallhaven `toml:"wallhaven"`
-}
-
-type Manager struct {
-	Period int
-	Mode   string
-}
-
-type Wallhaven struct {
-	Config []WallhavenConfig `toml:"config"`
-}
-
-type WallhavenConfig struct {
-	Page       int
-	Categories string
-	Tag        string
-}
-
 var cmdch chan int
-var cfg Config
 
 var check *widget.Check
 
@@ -45,15 +21,6 @@ const (
 
 func getVersion() string {
 	return version
-}
-
-func libInit(configpath string) {
-	cmdch = make(chan int, 0)
-	fmt.Println("core lib version:", version)
-	_, err := toml.DecodeFile(configpath, &cfg)
-	if err != nil {
-		fmt.Println("err:", err)
-	}
 }
 
 func running() {
@@ -105,7 +72,6 @@ func loadUI() {
 }
 
 func main() {
-	libInit(utils.GetCurrentDirectory() + "/config.toml")
 	go running()
 	loadUI()
 }

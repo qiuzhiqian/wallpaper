@@ -7,6 +7,7 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+	"sync"
 	"time"
 	"wallpaper/background"
 	"wallpaper/utils"
@@ -15,19 +16,42 @@ import (
 	"gitee.com/qiuzhiqian/downloader"
 )
 
-func Handler(c Config) {
-	var file string
-	switch c.Mgr.Mode {
-	case "wallhaven":
-		var DataList []wallhaven.ImgInfo
-		for _, item := range c.Wh.Config {
-			wp := wallhaven.Param{
-				Page:       item.Page,
-				Categories: item.Categories,
-				Tag:        item.Tag,
-			}
+type Manager struct {
+	cfg        *Config
+	mux        sync.Mutex
+	wallpapers []string
+}
 
-			jsondata, err := wallhaven.Searching(wp)
+func NewManager() *Manager {
+	mgr := &Manager{
+		wallpapers: make([]string, 0),
+	}
+
+	imageDir, err := getImageDir()
+	if err != nil {
+		panic(err)
+	}
+	localList := GetLocalFile(imageDir, []string{".png", ".jpg", ".jpeg"})
+	if len(localList) > 0 {
+		mgr.wallpapers = append(mgr.wallpapers, localList...)
+	}
+
+	mgr.cfg, err = LoadConfig(filepath.Join(utils.GetCurrentDirectory(), "config.toml"))
+	if err != nil {
+		panic(err)
+	}
+	return mgr
+}
+
+func (m *Manager) DownloadHandle() {
+	for {
+		var DataList []wallhaven.ImgInfo
+		for _, page := range m.cfg.Wh.Param.Page {
+			jsondata, err := wallhaven.Searching(wallhaven.Param{
+				Page:       page,
+				Categories: m.cfg.Wh.Param.Categories,
+				Tag:        m.cfg.Wh.Param.Tag,
+			})
 			if err != nil {
 				fmt.Println("err:", err)
 			}
@@ -48,30 +72,26 @@ func Handler(c Config) {
 		index := rand.Intn(len(DataList))
 		fmt.Println("index:", index)
 
-		file = saveHaven(DataList[index])
+		file := saveHaven(DataList[index])
 		if file == "" {
 			return
 		}
 		fmt.Println("download success.")
-	case "offline":
-		localList := GetLocalFile(utils.GetCurrentDirectory()+"/"+"image", []string{".png", ".jpg", ".jpeg"})
+	}
+}
 
-		if len(localList) == 0 {
-			return
-		}
-
+func (m *Manager) SettingHandle() {
+	for {
 		rand.Seed(time.Now().Unix())
-		index := rand.Intn(len(localList))
+		index := rand.Intn(len(m.wallpapers))
 		fmt.Println("index:", index)
 
-		file = localList[index]
+		err := background.SetBg(m.wallpapers[index])
+		if err != nil {
+			fmt.Println("err:", err)
+		}
+		fmt.Println("set background success.")
 	}
-
-	err := background.SetBg(file)
-	if err != nil {
-		fmt.Println("err:", err)
-	}
-	fmt.Println("set background success.")
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {
@@ -80,11 +100,10 @@ func saveHaven(item wallhaven.ImgInfo) string {
 		return ""
 	}
 
-	var ok bool = false
-	ok, err = utils.PathExists(fileDir)
-	if ok == false && err == nil {
+	_, err = os.Stat(fileDir)
+	if os.IsNotExist(err) {
 		os.MkdirAll(fileDir, os.ModeDir|0755)
-	} else if ok == false && err != nil {
+	} else if err != nil {
 		return ""
 	}
 
