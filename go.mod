@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	fyne.io/fyne v1.4.2
-	gitee.com/qiuzhiqian/downloader v1.0.3
+	gitee.com/qiuzhiqian/downloader v0.0.0-20210110100126-6bc33ac5921c
 	github.com/BurntSushi/toml v0.3.1
 	github.com/getlantern/golog v0.0.0-20201105130739-9586b8bde3a9 // indirect
 	github.com/getlantern/hidden v0.0.0-20201229170000-e66e7f878730 // indirect

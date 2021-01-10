@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"wallpaper/autorun"
 
 	"fyne.io/fyne"
@@ -24,15 +23,6 @@ func getVersion() string {
 }
 
 func running() {
-	for {
-		Handler(cfg)
-		select {
-		case num := <-cmdch:
-			fmt.Println("cmdch:", num)
-		case <-time.After(time.Second * time.Duration(cfg.Mgr.Period)):
-			fmt.Println("do next")
-		}
-	}
 }
 
 func next() {

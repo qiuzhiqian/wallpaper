@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -15,6 +16,8 @@ import (
 
 	"gitee.com/qiuzhiqian/downloader"
 )
+
+var ErrNeedSkip = errors.New("file exist need skip")
 
 type Manager struct {
 	cfg        *Config
@@ -108,7 +111,17 @@ func saveHaven(item wallhaven.ImgInfo) string {
 	}
 
 	fmt.Println("url:", item.Path)
-	saveName, err := downloader.DownloadWithProgress(item.Path, fileDir, func(_, _ int) {})
+	dwl := downloader.NewDownloader()
+	dwl.SetProgressHandler(func(_ string, _, _ int) {})
+	dwl.SetRenameHandler(func(filePath string) (string, error) {
+		_, err = os.Stat(filePath)
+		if err == nil {
+			return filePath, ErrNeedSkip
+		}
+
+		return filePath, nil
+	})
+	saveName, err := dwl.Download(item.Path, fileDir)
 	if err != nil {
 		return ""
 	}
