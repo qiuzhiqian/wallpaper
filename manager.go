@@ -174,6 +174,9 @@ func getConfigDir() (string, error) {
 func GetLocalFile(root string, filter []string) []string {
 	var localList []string
 	filepath.Walk(root, func(pathname string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 		fmt.Println(pathname)
 		if info.Mode().IsRegular() {
 			ext := path.Ext(pathname)
