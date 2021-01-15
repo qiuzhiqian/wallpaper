@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 	"wallpaper/background"
-	"wallpaper/utils"
 	"wallpaper/wallhaven"
 
 	"gitee.com/qiuzhiqian/downloader"
@@ -30,6 +29,20 @@ func NewManager() *Manager {
 		wallpapers: make([]string, 0),
 	}
 
+	configDir, err := getConfigDir()
+	if err != nil {
+		panic(err)
+	}
+
+	cfg, err := LoadConfig(filepath.Join(configDir, "config.json"))
+	if err != nil {
+		panic(err)
+	}
+
+	mgr.cfg = cfg
+
+	fmt.Println("cfg:", cfg)
+
 	imageDir, err := getImageDir()
 	if err != nil {
 		panic(err)
@@ -39,10 +52,6 @@ func NewManager() *Manager {
 		mgr.wallpapers = append(mgr.wallpapers, localList...)
 	}
 
-	mgr.cfg, err = LoadConfig(filepath.Join(utils.GetCurrentDirectory(), "config.toml"))
-	if err != nil {
-		panic(err)
-	}
 	return mgr
 }
 
@@ -50,6 +59,7 @@ func (m *Manager) DownloadHandle() {
 	for {
 		var DataList []wallhaven.ImgInfo
 		for _, page := range m.cfg.Wh.Param.Page {
+			fmt.Println("download page =", page)
 			jsondata, err := wallhaven.Searching(wallhaven.Param{
 				Page:       page,
 				Categories: m.cfg.Wh.Param.Categories,
@@ -71,20 +81,31 @@ func (m *Manager) DownloadHandle() {
 			return
 		}
 
-		rand.Seed(time.Now().Unix())
-		index := rand.Intn(len(DataList))
-		fmt.Println("index:", index)
+		for _, url := range DataList {
+			fmt.Println("download url =", url)
+			file := saveHaven(url)
+			if file == "" {
+				return
+			}
+			fmt.Println("download success.")
 
-		file := saveHaven(DataList[index])
-		if file == "" {
-			return
+			m.mux.Lock()
+			m.wallpapers = append(m.wallpapers)
+			m.mux.Unlock()
 		}
-		fmt.Println("download success.")
+
+		time.Sleep(30 * time.Minute)
 	}
 }
 
 func (m *Manager) SettingHandle() {
 	for {
+		if len(m.wallpapers) == 0 {
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		m.mux.Lock()
 		rand.Seed(time.Now().Unix())
 		index := rand.Intn(len(m.wallpapers))
 		fmt.Println("index:", index)
@@ -94,6 +115,9 @@ func (m *Manager) SettingHandle() {
 			fmt.Println("err:", err)
 		}
 		fmt.Println("set background success.")
+		m.mux.Unlock()
+
+		time.Sleep(2 * time.Minute)
 	}
 }
 
@@ -116,13 +140,16 @@ func saveHaven(item wallhaven.ImgInfo) string {
 	dwl.SetRenameHandler(func(filePath string) (string, error) {
 		_, err = os.Stat(filePath)
 		if err == nil {
+			fmt.Println("find file")
 			return filePath, ErrNeedSkip
 		}
 
+		fmt.Println("can't find file")
 		return filePath, nil
 	})
 	saveName, err := dwl.Download(item.Path, fileDir)
-	if err != nil {
+	if err != nil && err != ErrNeedSkip {
+		fmt.Println("err:", err)
 		return ""
 	}
 	return saveName
@@ -134,6 +161,14 @@ func getImageDir() (string, error) {
 		return "", err
 	}
 	return filepath.Join(u.HomeDir, ".wallpaper", "wallhaven"), nil
+}
+
+func getConfigDir() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(u.HomeDir, ".config", "wallhaven"), nil
 }
 
 func GetLocalFile(root string, filter []string) []string {

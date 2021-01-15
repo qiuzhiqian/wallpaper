@@ -23,6 +23,9 @@ func getVersion() string {
 }
 
 func running() {
+	m := NewManager()
+	go m.DownloadHandle()
+	go m.SettingHandle()
 }
 
 func next() {
@@ -62,6 +65,6 @@ func loadUI() {
 }
 
 func main() {
-	go running()
+	running()
 	loadUI()
 }
