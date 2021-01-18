@@ -22,11 +22,13 @@ type Manager struct {
 	cfg        *Config
 	mux        sync.Mutex
 	wallpapers []string
+	nextCh     chan bool
 }
 
 func NewManager() *Manager {
 	mgr := &Manager{
 		wallpapers: make([]string, 0),
+		nextCh:     make(chan bool),
 	}
 
 	configDir, err := getConfigDir()
@@ -101,31 +103,43 @@ func (m *Manager) DownloadHandle() {
 			m.mux.Unlock()
 		}
 
-		time.Sleep(30 * time.Minute)
+		time.Sleep(time.Duration(m.cfg.Wh.Period) * time.Minute)
 	}
 }
 
 func (m *Manager) SettingHandle() {
+	t := time.NewTimer(time.Duration(m.cfg.Setting.Period) * time.Minute)
 	for {
 		if len(m.wallpapers) == 0 {
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
-		m.mux.Lock()
-		rand.Seed(time.Now().Unix())
-		index := rand.Intn(len(m.wallpapers))
-		fmt.Println("index:", index)
-
-		err := background.SetBg(m.wallpapers[index])
-		if err != nil {
-			fmt.Println("err:", err)
+		select {
+		case <-t.C:
+			m.switchBg()
+		case <-m.nextCh:
+			m.switchBg()
 		}
-		fmt.Println("set background success.")
-		m.mux.Unlock()
-
-		time.Sleep(2 * time.Minute)
 	}
+}
+
+func (m *Manager) switchBg() {
+	m.mux.Lock()
+	rand.Seed(time.Now().Unix())
+	index := rand.Intn(len(m.wallpapers))
+	fmt.Println("index:", index)
+
+	err := background.SetBg(m.wallpapers[index])
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	fmt.Println("set background success.")
+	m.mux.Unlock()
+}
+
+func (m *Manager) Next() {
+	m.nextCh <- true
 }
 
 func saveHaven(item wallhaven.ImgInfo) string {

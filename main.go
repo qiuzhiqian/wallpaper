@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"wallpaper/autorun"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
@@ -22,25 +21,19 @@ func getVersion() string {
 	return version
 }
 
-func running() {
-	m := NewManager()
-	go m.DownloadHandle()
-	go m.SettingHandle()
-}
-
 func next() {
 	cmdch <- 0
 }
 
-func loadUI() {
+func loadUI(m *Manager) {
 	appObj := app.New()
 
 	check = widget.NewCheck("Auto run", func(checked bool) {
-		fmt.Println("check:", checked)
-		res := autorun.Enable(checked)
-		if !res {
-			check.SetChecked(!checked)
-		}
+		fmt.Println("do nothing")
+		//res := autorun.Enable(checked)
+		//if !res {
+		//	check.SetChecked(!checked)
+		//}
 	})
 
 	w := appObj.NewWindow("Wallpaper")
@@ -51,7 +44,8 @@ func loadUI() {
 			layout.NewGridLayout(2),
 			check,
 			widget.NewButton("Next", func() {
-				next()
+				//next()
+				m.Next()
 			}),
 		),
 		widget.NewButton("Quit", func() {
@@ -65,6 +59,9 @@ func loadUI() {
 }
 
 func main() {
-	running()
-	loadUI()
+	m := NewManager()
+	go m.DownloadHandle()
+	go m.SettingHandle()
+
+	loadUI(m)
 }

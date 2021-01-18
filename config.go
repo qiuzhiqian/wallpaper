@@ -43,7 +43,7 @@ var defaultCfg Config = Config{
 	Wh: Wallhaven{
 		Period: 10,
 		Param: WallhavenParam{
-			Page:       []int{1, 2, 3},
+			Page:       []int{1, 2},
 			Categories: "anime",
 			Tag:        "anime",
 		},
