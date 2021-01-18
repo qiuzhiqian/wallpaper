@@ -76,6 +76,7 @@ func (m *Manager) DownloadHandle() {
 			jsondata, err := wallhaven.Searching(param)
 			if err != nil {
 				fmt.Println("err:", err)
+				continue
 			}
 
 			if len(jsondata.Data) == 0 {
@@ -83,7 +84,6 @@ func (m *Manager) DownloadHandle() {
 			}
 
 			DataList = append(DataList, jsondata.Data...)
-			fmt.Println("data len:", len(DataList))
 		}
 
 		if len(DataList) == 0 {
@@ -91,7 +91,6 @@ func (m *Manager) DownloadHandle() {
 		}
 
 		for _, url := range DataList {
-			fmt.Println("download url =", url)
 			file := saveHaven(url)
 			if file == "" {
 				return
@@ -198,7 +197,6 @@ func GetLocalFile(root string, filter []string) []string {
 		if err != nil {
 			return err
 		}
-		fmt.Println(pathname)
 		if info.Mode().IsRegular() {
 			ext := path.Ext(pathname)
 			var match bool = false
