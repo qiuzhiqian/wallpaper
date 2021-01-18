@@ -43,8 +43,6 @@ func NewManager() *Manager {
 
 	mgr.cfg = cfg
 
-	fmt.Println("cfg:", cfg)
-
 	imageDir, err := getImageDir()
 	if err != nil {
 		panic(err)
@@ -112,8 +110,13 @@ func (m *Manager) SettingHandle() {
 		if len(m.wallpapers) == 0 {
 			time.Sleep(5 * time.Second)
 			continue
+		} else {
+			//先执行一遍
+			m.switchBg()
+			break
 		}
-
+	}
+	for {
 		select {
 		case <-t.C:
 			m.switchBg()
