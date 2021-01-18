@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type Config struct {
 	Version string
 	//Title   string
-	Setting Setting   `json:"setting"`
-	Wh      Wallhaven `json:"wallhaven"`
+	Setting    Setting    `json:"setting"`
+	Wh         Wallhaven  `json:"wallhaven"`
+	ScreenSize ScreenSize `json:"screensize"`
 }
 
 type Setting struct {
@@ -28,8 +30,13 @@ type WallhavenParam struct {
 	Tag        string
 }
 
+type ScreenSize struct {
+	Width  int
+	Height int
+}
+
 var defaultCfg Config = Config{
-	Version: "1.0.0",
+	Version: "1.0.1",
 	Setting: Setting{
 		Period: 30,
 	},
@@ -41,12 +48,19 @@ var defaultCfg Config = Config{
 			Tag:        "anime",
 		},
 	},
+	ScreenSize: ScreenSize{
+		Width:  1920,
+		Height: 1080,
+	},
 }
 
 func LoadConfig(name string) (*Config, error) {
 	_, err := os.Stat(name)
 	if err != nil && os.IsNotExist(err) {
-		defaultCfg.Save(name)
+		err = defaultCfg.Save(name)
+		if err != nil {
+			return nil, err
+		}
 		return &defaultCfg, nil
 	}
 
@@ -70,6 +84,10 @@ func LoadConfig(name string) (*Config, error) {
 }
 
 func (c Config) Save(name string) error {
+	_, err := os.Stat(filepath.Dir(name))
+	if os.IsNotExist(err) {
+		os.MkdirAll(filepath.Dir(name), 0755)
+	}
 	f, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err

@@ -45,3 +45,23 @@ func TestWallPaperFlash(tt *testing.T) {
 		}
 	}
 }
+
+func TestToString(t *testing.T) {
+	p := Param{
+		Page:       1,
+		Categories: "anime",
+		Tag:        "anime",
+		Resolutions: []Resolution{
+			Resolution{
+				Width:  1920,
+				Height: 1080,
+			},
+			Resolution{
+				Width:  2160,
+				Height: 1440,
+			},
+		},
+	}
+
+	t.Log("url:", p)
+}

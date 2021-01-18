@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
+
+type Resolution struct {
+	Width  int
+	Height int
+}
 
 type ThumbsStruct struct {
 	Large    string
@@ -48,13 +52,44 @@ type SearchList struct {
 }
 
 type Param struct {
-	Page       int
-	Categories string
-	Tag        string
+	Page        int
+	Categories  string
+	Tag         string
+	Resolutions []Resolution
+}
+
+func (p Param) String() string {
+	paramStr := ""
+	rsStr := Resolutions(p.Resolutions)
+	if rsStr != "" {
+		paramStr = rsStr
+	}
+	paramStr = fmt.Sprintf("%s&q=%s", paramStr, p.Tag)
+	paramStr = fmt.Sprintf("%s&page=%d", paramStr, p.Page)
+
+	url := ""
+	if paramStr != "" {
+		url = "https://wallhaven.cc/api/v1/search" + "?" + paramStr
+	} else {
+		url = "https://wallhaven.cc/api/v1/search"
+	}
+	return url
+}
+
+func Resolutions(rs []Resolution) string {
+	paramStr := ""
+	for i, r := range rs {
+		if i > 0 {
+			paramStr = fmt.Sprintf("%s,%dx%d", paramStr, r.Width, r.Height)
+		} else {
+			paramStr = fmt.Sprintf("resolutions=%dx%d", r.Width, r.Height)
+		}
+	}
+	return paramStr
 }
 
 func Searching(p Param) (*SearchList, error) {
-	var urlstr string = "https://wallhaven.cc/api/v1/search" + "?" + "q=" + p.Tag + "&" + "page=" + strconv.FormatInt(int64(p.Page), 10)
+	var urlstr string = p.String()
 	fmt.Println("url:", urlstr)
 	resp, err := http.Get(urlstr)
 	if err != nil {

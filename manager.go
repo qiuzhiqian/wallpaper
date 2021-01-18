@@ -60,11 +60,18 @@ func (m *Manager) DownloadHandle() {
 		var DataList []wallhaven.ImgInfo
 		for _, page := range m.cfg.Wh.Param.Page {
 			fmt.Println("download page =", page)
-			jsondata, err := wallhaven.Searching(wallhaven.Param{
+			param := wallhaven.Param{
 				Page:       page,
 				Categories: m.cfg.Wh.Param.Categories,
 				Tag:        m.cfg.Wh.Param.Tag,
-			})
+				Resolutions: []wallhaven.Resolution{
+					wallhaven.Resolution{
+						Width:  m.cfg.ScreenSize.Width,
+						Height: m.cfg.ScreenSize.Height,
+					},
+				},
+			}
+			jsondata, err := wallhaven.Searching(param)
 			if err != nil {
 				fmt.Println("err:", err)
 			}
@@ -90,7 +97,7 @@ func (m *Manager) DownloadHandle() {
 			fmt.Println("download success.")
 
 			m.mux.Lock()
-			m.wallpapers = append(m.wallpapers)
+			m.wallpapers = append(m.wallpapers, file)
 			m.mux.Unlock()
 		}
 
