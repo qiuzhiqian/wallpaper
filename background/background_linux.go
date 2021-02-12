@@ -7,6 +7,10 @@ import (
 )
 
 func SetBg(file string) error {
+	return setBgForKDE(file)
+}
+
+func setBgForKDE(file string) error {
 	fmt.Println("linux setbg")
 	//var ret []string
 	conn, err := dbus.SessionBus()
@@ -27,5 +31,13 @@ func SetBg(file string) error {
 	if call.Err != nil {
 		return call.Err
 	}
+	return nil
+}
+
+func setBgForDDE(file string) error {
+	return nil
+}
+
+func setBgForGNOME(file string) error {
 	return nil
 }
