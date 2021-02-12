@@ -1,10 +1,9 @@
 package background
 
 import (
-	"fmt"
 	"os"
 
-	dbus "github.com/guelfey/go.dbus"
+	"github.com/godbus/dbus/v5"
 )
 
 type DESKTOP int32
@@ -29,8 +28,6 @@ func SetBg(file string) error {
 }
 
 func setBgForKDE(file string) error {
-	fmt.Println("linux setbg")
-	//var ret []string
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		panic(err)

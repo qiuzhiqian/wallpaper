@@ -5,12 +5,12 @@ go 1.12
 require (
 	fyne.io/fyne v1.4.2
 	gitee.com/qiuzhiqian/downloader v0.0.0-20210110100126-6bc33ac5921c
-	github.com/BurntSushi/toml v0.3.1
 	github.com/getlantern/golog v0.0.0-20201105130739-9586b8bde3a9 // indirect
 	github.com/getlantern/hidden v0.0.0-20201229170000-e66e7f878730 // indirect
 	github.com/getlantern/ops v0.0.0-20200403153110-8476b16edcd6 // indirect
 	github.com/getlantern/systray v1.1.0
 	github.com/go-gl/glfw v0.0.0-20201108214237-06ea97f0c265 // indirect
+	github.com/godbus/dbus/v5 v5.0.3
 	github.com/guelfey/go.dbus v0.0.0-20131113121618-f6a3a2366cc3
 	github.com/lxn/walk v0.0.0-20201209144500-98655d01b2f1 // indirect
 	github.com/lxn/win v0.0.0-20201111105847-2a20daff6a55 // indirect
