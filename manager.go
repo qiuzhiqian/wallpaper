@@ -20,6 +20,7 @@ var ErrNeedSkip = errors.New("file exist need skip")
 
 type Manager struct {
 	cfg        *Config
+	center     *Center
 	mux        sync.Mutex
 	wallpapers []string
 	nextCh     chan bool
@@ -55,11 +56,23 @@ func NewManager() *Manager {
 	return mgr
 }
 
+func (m *Manager) setCenter(c *Center) {
+	m.center = c
+}
+
+func (m *Manager) changeDownloadState(text string) {
+	m.center.changeDownloadState(text)
+}
+
+func (m *Manager) changeWallpaperState(text string) {
+	m.center.changeWallpaperState(text)
+}
+
 func (m *Manager) DownloadHandle() {
 	for {
 		var DataList []wallhaven.ImgInfo
 		for _, page := range m.cfg.Wh.Param.Page {
-			fmt.Println("download page =", page)
+			m.changeDownloadState(fmt.Sprintf("parse page = %d", page))
 			param := wallhaven.Param{
 				Page:       page,
 				Categories: m.cfg.Wh.Param.Categories,
@@ -88,23 +101,34 @@ func (m *Manager) DownloadHandle() {
 			return
 		}
 
-		for _, url := range DataList {
-			file := saveHaven(url)
+		for i, url := range DataList {
+			m.changeDownloadState(fmt.Sprintf("downloading: %d/%d", i, len(DataList)))
+			file, err := saveHaven(url)
 			if file == "" {
 				return
 			}
-			fmt.Println("download success.")
 
-			m.mux.Lock()
-			m.wallpapers = append(m.wallpapers, file)
-			m.mux.Unlock()
+			if err != nil && err != ErrNeedSkip {
+				return
+			} else if err != nil {
+				continue
+			} else {
+				m.mux.Lock()
+				m.wallpapers = append(m.wallpapers, file)
+				m.mux.Unlock()
+				m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
+			}
 		}
 
-		time.Sleep(time.Duration(m.cfg.Wh.Period) * time.Minute)
+		for i := m.cfg.Wh.Period; i > 0; i-- {
+			m.changeDownloadState(fmt.Sprintf("download end %d, Sleeping %d minute.", len(DataList), i))
+			time.Sleep(time.Minute)
+		}
 	}
 }
 
 func (m *Manager) SettingHandle() {
+	m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
 	t := time.NewTimer(time.Duration(m.cfg.Setting.Period) * time.Minute)
 	for {
 		if len(m.wallpapers) == 0 {
@@ -144,17 +168,17 @@ func (m *Manager) Next() {
 	m.nextCh <- true
 }
 
-func saveHaven(item wallhaven.ImgInfo) string {
+func saveHaven(item wallhaven.ImgInfo) (string, error) {
 	fileDir, err := getImageDir()
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	_, err = os.Stat(fileDir)
 	if os.IsNotExist(err) {
 		os.MkdirAll(fileDir, os.ModeDir|0755)
 	} else if err != nil {
-		return ""
+		return "", err
 	}
 
 	fmt.Println("url:", item.Path)
@@ -170,12 +194,7 @@ func saveHaven(item wallhaven.ImgInfo) string {
 		fmt.Println("can't find file")
 		return filePath, nil
 	})
-	saveName, err := dwl.Download(item.Path, fileDir)
-	if err != nil && err != ErrNeedSkip {
-		fmt.Println("err:", err)
-		return ""
-	}
-	return saveName
+	return dwl.Download(item.Path, fileDir)
 }
 
 func getImageDir() (string, error) {
