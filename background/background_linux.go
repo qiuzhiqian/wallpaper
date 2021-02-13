@@ -1,7 +1,9 @@
 package background
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/godbus/dbus/v5"
 )
@@ -50,6 +52,36 @@ func setBgForKDE(file string) error {
 }
 
 func setBgForDDE(file string) error {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		panic(err)
+	}
+
+	prop, err := conn.Object("com.deepin.daemon.Display", "/com/deepin/daemon/Display").GetProperty("com.deepin.daemon.Display.Monitors")
+	if err != nil {
+		return err
+	}
+
+	monitors := prop.Value().([]dbus.ObjectPath)
+	if len(monitors) == 0 {
+		return fmt.Errorf("monitor is empty")
+	}
+
+	m, err := conn.Object("com.deepin.daemon.Display", monitors[0]).GetProperty("com.deepin.daemon.Display.Monitor.Name")
+	if err != nil {
+		return err
+	}
+
+	name := m.Value().(string)
+	urlFile, err := filepath.Abs(file)
+	if err != nil {
+		return err
+	}
+	call := conn.Object("com.deepin.daemon.Appearance", "/com/deepin/daemon/Appearance").Call("com.deepin.daemon.Appearance.SetMonitorBackground", 0, name, "file://"+urlFile)
+	if call.Err != nil {
+		return call.Err
+	}
+
 	return nil
 }
 

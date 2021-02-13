@@ -30,10 +30,6 @@ func loadUI(m *Manager) {
 
 	check = widget.NewCheck("Auto run", func(checked bool) {
 		fmt.Println("do nothing")
-		//res := autorun.Enable(checked)
-		//if !res {
-		//	check.SetChecked(!checked)
-		//}
 	})
 
 	w := appObj.NewWindow("Wallpaper")
