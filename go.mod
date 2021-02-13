@@ -1,4 +1,4 @@
-module wallpaper
+module wallpaper-toolbox
 
 go 1.12
 

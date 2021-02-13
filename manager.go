@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
-	"wallpaper/background"
-	"wallpaper/wallhaven"
+	"wallpaper-toolbox/background"
+	"wallpaper-toolbox/wallhaven"
 
 	"gitee.com/qiuzhiqian/downloader"
 )

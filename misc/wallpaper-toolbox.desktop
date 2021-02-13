@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=Graphics;GTK;DDE;KDE
+Comment=Wallpaper Toolbox
+Exec=wallpaper-toolbox
+Icon=wallpaper-toolbox
+Name=Wallpaper Toolbox
+GenericName=Wallpaper Toolbox
+StartupNotify=false
+Terminal=false
+Type=Application
