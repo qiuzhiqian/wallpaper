@@ -14,7 +14,7 @@ var cmdch chan int
 var check *widget.Check
 
 const (
-	version string = "1.2.0"
+	version string = "2.0.0"
 )
 
 func getVersion() string {
