@@ -183,7 +183,7 @@ func getImageDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(u.HomeDir, ".wallpaper", "wallhaven"), nil
+	return filepath.Join(u.HomeDir, ".wallpaper", "wallpaper-toolbox"), nil
 }
 
 func getConfigDir() (string, error) {
@@ -191,7 +191,7 @@ func getConfigDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(u.HomeDir, ".config", "wallhaven"), nil
+	return filepath.Join(u.HomeDir, ".config", "wallpaper-toolbox"), nil
 }
 
 func GetLocalFile(root string, filter []string) []string {

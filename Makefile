@@ -1,3 +1,4 @@
+PREFIX = /usr
 
 all:build
 

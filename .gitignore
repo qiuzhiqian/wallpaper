@@ -1,4 +1,9 @@
 image/
 /go.sum
-/wallpaper
-/wallpaper.exe
+/wallpaper-toolbox
+/wallpaper-toolbox.exe
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/wallpaper-toolbox.substvars
+/debian/wallpaper-toolbox/
