@@ -27,3 +27,5 @@ install:
 
 clean:
 	rm -rf wallpaper-toolbox
+
+.PHONY:clean install
