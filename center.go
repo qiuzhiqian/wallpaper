@@ -23,6 +23,8 @@ func NewCenter() *Center {
 		app: app.NewWithID("com.qiuzhiqian.wallpaper-toolbox"),
 	}
 
+	c.app.SetIcon(titleIconRs)
+
 	c.window = c.app.NewWindow("Wallpaper")
 	c.window.SetMaster()
 	return c
@@ -54,7 +56,7 @@ func (c *Center) init(m *Manager) {
 
 	c.window.SetContent(x)
 
-	c.window.Resize(fyne.NewSize(1000, 600))
+	c.window.Resize(fyne.NewSize(1060, 600))
 }
 
 func (c *Center) SyncData() {

@@ -23,7 +23,7 @@
 - linux(适配了kde和dde，gnome由于环境暂未适配)
 
 ## 依赖
-- [golang](https://golang.google.cn/)
+- [golang 1.16+](https://golang.google.cn/)
 - [downloader](https://gitee.com/qiuzhiqian/downloader)
 - [fyne](https://github.com/fyne-io/fyne)
 
