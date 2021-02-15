@@ -38,12 +38,12 @@ type ScreenSize struct {
 var defaultCfg Config = Config{
 	Version: "1.0.1",
 	Setting: Setting{
-		Period: 30,
+		Period: 20,
 	},
 	Wh: Wallhaven{
-		Period: 10,
+		Period: 20,
 		Param: WallhavenParam{
-			Page:       []int{1, 2},
+			Page:       []int{1},
 			Categories: "anime",
 			Tag:        "anime",
 		},

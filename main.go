@@ -1,12 +1,6 @@
 package main
 
-import (
-	"fyne.io/fyne/widget"
-)
-
 var cmdch chan int
-
-var check *widget.Check
 
 const (
 	version string = "2.0.1"
@@ -25,6 +19,7 @@ func main() {
 	c := NewCenter()
 	c.init(m)
 	m.setCenter(c)
+	c.SyncData()
 
 	go m.DownloadHandle()
 	go m.SettingHandle()

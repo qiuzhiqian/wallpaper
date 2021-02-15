@@ -1,57 +1,69 @@
 package main
 
 import (
-	"fmt"
-
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
 
 type Center struct {
+	m              *Manager
 	app            fyne.App
 	check          *widget.Check
 	window         fyne.Window
 	downloadState  *widget.Label
 	wallpaperState *widget.Label
+	view           *Preview
 }
 
 func NewCenter() *Center {
 	c := &Center{
-		app: app.New(),
+		app: app.NewWithID("com.qiuzhiqian.wallpaper-toolbox"),
 	}
 
 	c.window = c.app.NewWindow("Wallpaper")
+	c.window.SetMaster()
 	return c
 }
 
 func (c *Center) init(m *Manager) {
-	c.check = widget.NewCheck("Auto run", func(checked bool) {
-		fmt.Println("do nothing")
-	})
-
+	c.m = m
 	c.downloadState = widget.NewLabel("Begining download...")
 	c.wallpaperState = widget.NewLabel("wallpaper count: 0")
+	c.view = NewPreview()
 
-	c.window.SetContent(fyne.NewContainerWithLayout(
-		layout.NewGridLayout(1),
-		widget.NewLabel("version:"+getVersion()),
-		fyne.NewContainerWithLayout(
-			layout.NewGridLayout(2),
-			c.check,
+	topWidget := container.NewVBox(
+		container.NewHBox(
+			widget.NewLabel("version:"+getVersion()),
+			layout.NewSpacer(),
 			widget.NewButton("Next", func() {
 				m.Next()
 			}),
 		),
 		c.downloadState,
 		c.wallpaperState,
-		widget.NewButton("Quit", func() {
-			c.app.Quit()
-		}),
-	))
+	)
 
-	c.window.Resize(fyne.Size{Width: 300, Height: 100})
+	x := container.NewBorder(
+		topWidget,
+		nil, nil, nil,
+		c.view.obj,
+	)
+
+	c.window.SetContent(x)
+
+	c.window.Resize(fyne.NewSize(1000, 600))
+}
+
+func (c *Center) SyncData() {
+	c.view.InitData(c.m.wallpapers)
+}
+
+func (c *Center) AddDataItem(item string) {
+	c.view.AddDataItem(item)
+	c.view.obj.Refresh()
 }
 
 func (c *Center) changeDownloadState(text string) {

@@ -97,11 +97,8 @@ func (m *Manager) DownloadHandle() {
 			DataList = append(DataList, jsondata.Data...)
 		}
 
-		if len(DataList) == 0 {
-			return
-		}
-
 		for i, url := range DataList {
+			//continue
 			m.changeDownloadState(fmt.Sprintf("downloading: %d/%d", i, len(DataList)))
 			file, err := saveHaven(url)
 			if file == "" {
@@ -109,12 +106,16 @@ func (m *Manager) DownloadHandle() {
 			}
 
 			if err != nil && err != ErrNeedSkip {
+				// 获取了一个错误，并且该错误不能被忽略
 				return
 			} else if err != nil {
+				// 获取了一个错误，并且该错误需要被忽略(通常时发现了相同的文件名，所以需要忽略)
 				continue
 			} else {
+				// 说明成功下载了一个新文件
 				m.mux.Lock()
 				m.wallpapers = append(m.wallpapers, file)
+				m.center.AddDataItem(file)
 				m.mux.Unlock()
 				m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
 			}
