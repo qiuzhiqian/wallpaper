@@ -3,11 +3,9 @@
 一个定时自动切换壁纸的应用。使用golang实现，壁纸来源从wallhaven获取，然后随机选择一张设置为当前壁纸。
 
 ## 预览
-![window预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_1.png)
+![window预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/win10_1.png)
 
-![linux kde预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_2.png)
-
-![设置界面](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/image_3.png)
+![linux kde预览1](https://raw.githubusercontent.com/qiuzhiqian/wallpaper/master/doc/img/linux_kde_1.png)
 
 ## 特性
 - 从wallhaven获取壁纸列表。
