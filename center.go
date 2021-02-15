@@ -63,7 +63,6 @@ func (c *Center) SyncData() {
 
 func (c *Center) AddDataItem(item string) {
 	c.view.AddDataItem(item)
-	c.view.obj.Refresh()
 }
 
 func (c *Center) changeDownloadState(text string) {

@@ -70,4 +70,6 @@ func (p *Preview) AddDataItem(item string) {
 		p.data = make([]string, 0)
 	}
 	p.data = append(p.data, item)
+	// 添加后需要刷新，要不然ui不会变化
+	p.obj.(*container.Split).Leading.Refresh()
 }
