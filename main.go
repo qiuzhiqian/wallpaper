@@ -3,7 +3,7 @@ package main
 var cmdch chan int
 
 const (
-	version string = "2.0.1"
+	version string = "2.1.0"
 )
 
 func getVersion() string {
