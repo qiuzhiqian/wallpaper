@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -9,22 +10,26 @@ import (
 )
 
 type Foot struct {
-	obj   fyne.CanvasObject
-	count int
-	name  string
+	obj        fyne.CanvasObject
+	count      int
+	name       string
+	updateTime time.Time
 
-	countLabel *widget.Label
-	nameLabel  *widget.Label
+	countLabel  *widget.Label
+	nameLabel   *widget.Label
+	updateLabel *widget.Label
 }
 
 func NewFoot() *Foot {
 	foot := &Foot{
-		count: 0,
-		name:  "",
+		count:      0,
+		name:       "",
+		updateTime: time.Now(),
 	}
 	foot.countLabel = widget.NewLabel(fmt.Sprintf("count: %d", foot.count))
 	foot.nameLabel = widget.NewLabel(foot.name)
-	infoWidget := container.NewGridWithRows(1, foot.countLabel, foot.nameLabel)
+	foot.updateLabel = widget.NewLabel("update: " + foot.updateTime.Format("2006-01-02 15:04:05"))
+	infoWidget := container.NewGridWithRows(1, foot.countLabel, foot.nameLabel, foot.updateLabel)
 
 	btnSet := widget.NewButton("Set", func() {})
 	foot.obj = container.NewBorder(nil, nil, nil, btnSet, infoWidget)
@@ -50,5 +55,12 @@ func (f *Foot) SetName(name string) {
 	if name != f.name {
 		f.name = name
 		f.nameLabel.SetText(f.name)
+	}
+}
+
+func (f *Foot) SetUpdateTime(t time.Time) {
+	if t.Unix() != f.updateTime.Unix() {
+		f.updateTime = t
+		f.updateLabel.SetText("update: " + f.updateTime.Format("2006-01-02 15:04:05"))
 	}
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -56,7 +58,7 @@ func (c *Center) init(m *Manager) {
 
 	c.window.SetContent(x)
 
-	c.window.Resize(fyne.NewSize(1060, 600))
+	c.window.Resize(fyne.NewSize(980, 600))
 
 	c.view.Init()
 }
@@ -89,6 +91,10 @@ func (c *Center) DataSize() int {
 
 func (c *Center) SetShowName(name string) {
 	c.view.SetShowName(name)
+}
+
+func (c *Center) SetUpdateTime(t time.Time) {
+	c.view.foot.SetUpdateTime(t)
 }
 
 func (c *Center) ShowAndRun() {

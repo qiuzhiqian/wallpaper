@@ -20,12 +20,13 @@
 
 ## 系统支持
 - windows
-- linux(适配了kde和dde，gnome由于环境暂未适配)
+- linux(适配了kde和dde，gnome由于没有现成的环境暂未适配)
 
 ## 依赖
 - [golang 1.16+](https://golang.google.cn/)
 - [downloader](https://gitee.com/qiuzhiqian/downloader)
 - [fyne](https://github.com/fyne-io/fyne)
+- [fsnotify](https://github.com/fsnotify/fsnotify)
 
 ## 编译
 linux下面：

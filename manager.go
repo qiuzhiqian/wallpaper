@@ -150,6 +150,7 @@ func (m *Manager) switchRandom() {
 	}
 
 	m.center.SetShowName(filepath.Base(name))
+	m.center.SetUpdateTime(time.Now())
 	m.mux.Unlock()
 }
 
