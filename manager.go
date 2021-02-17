@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"os/user"
-	"path"
 	"path/filepath"
 	"sync"
 	"time"
 	"wallpaper-toolbox/background"
+	"wallpaper-toolbox/utils"
 	"wallpaper-toolbox/wallhaven"
 
 	"gitee.com/qiuzhiqian/downloader"
@@ -19,20 +18,18 @@ import (
 var ErrNeedSkip = errors.New("file exist need skip")
 
 type Manager struct {
-	cfg        *Config
-	center     *Center
-	mux        sync.Mutex
-	wallpapers []string
-	nextCh     chan bool
+	cfg    *Config
+	center *Center
+	mux    sync.Mutex
+	nextCh chan bool
 }
 
 func NewManager() *Manager {
 	mgr := &Manager{
-		wallpapers: make([]string, 0),
-		nextCh:     make(chan bool),
+		nextCh: make(chan bool),
 	}
 
-	configDir, err := getConfigDir()
+	configDir, err := utils.GetConfigDir()
 	if err != nil {
 		panic(err)
 	}
@@ -43,15 +40,6 @@ func NewManager() *Manager {
 	}
 
 	mgr.cfg = cfg
-
-	imageDir, err := getImageDir()
-	if err != nil {
-		panic(err)
-	}
-	localList := GetLocalFile(imageDir, []string{".png", ".jpg", ".jpeg"})
-	if len(localList) > 0 {
-		mgr.wallpapers = append(mgr.wallpapers, localList...)
-	}
 
 	return mgr
 }
@@ -113,11 +101,7 @@ func (m *Manager) DownloadHandle() {
 				continue
 			} else {
 				// 说明成功下载了一个新文件
-				m.mux.Lock()
-				m.wallpapers = append(m.wallpapers, file)
-				m.center.AddDataItem(file)
-				m.mux.Unlock()
-				m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
+				//m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
 			}
 		}
 
@@ -129,10 +113,10 @@ func (m *Manager) DownloadHandle() {
 }
 
 func (m *Manager) SettingHandle() {
-	m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
+	//m.changeWallpaperState(fmt.Sprintf("wallpaper count: %d.", len(m.wallpapers)))
 	t := time.NewTimer(time.Duration(m.cfg.Setting.Period) * time.Minute)
 	for {
-		if len(m.wallpapers) == 0 {
+		if m.center.DataSize() == 0 {
 			time.Sleep(5 * time.Second)
 			continue
 		} else {
@@ -154,10 +138,14 @@ func (m *Manager) SettingHandle() {
 func (m *Manager) switchBg() {
 	m.mux.Lock()
 	rand.Seed(time.Now().Unix())
-	index := rand.Intn(len(m.wallpapers))
+	index := rand.Intn(m.center.DataSize())
 	fmt.Println("index:", index)
 
-	err := background.SetBg(m.wallpapers[index])
+	name, err := m.center.view.data.at(index)
+	if err != nil {
+		return
+	}
+	err = background.SetBg(name)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
@@ -170,7 +158,7 @@ func (m *Manager) Next() {
 }
 
 func saveHaven(item wallhaven.ImgInfo) (string, error) {
-	fileDir, err := getImageDir()
+	fileDir, err := utils.GetImageDir()
 	if err != nil {
 		return "", err
 	}
@@ -196,45 +184,4 @@ func saveHaven(item wallhaven.ImgInfo) (string, error) {
 		return filePath, nil
 	})
 	return dwl.Download(item.Path, fileDir)
-}
-
-func getImageDir() (string, error) {
-	u, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(u.HomeDir, ".wallpaper", "wallpaper-toolbox"), nil
-}
-
-func getConfigDir() (string, error) {
-	u, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(u.HomeDir, ".config", "wallpaper-toolbox"), nil
-}
-
-func GetLocalFile(root string, filter []string) []string {
-	var localList []string
-	filepath.Walk(root, func(pathname string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.Mode().IsRegular() {
-			ext := path.Ext(pathname)
-			var match bool = false
-
-			for _, item := range filter {
-				if ext == item {
-					match = true
-					break
-				}
-			}
-			if match {
-				localList = append(localList, pathname)
-			}
-		}
-		return nil
-	})
-	return localList
 }

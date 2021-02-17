@@ -57,14 +57,8 @@ func (c *Center) init(m *Manager) {
 	c.window.SetContent(x)
 
 	c.window.Resize(fyne.NewSize(1060, 600))
-}
 
-func (c *Center) SyncData() {
-	c.view.InitData(c.m.wallpapers)
-}
-
-func (c *Center) AddDataItem(item string) {
-	c.view.AddDataItem(item)
+	c.view.Init()
 }
 
 func (c *Center) changeDownloadState(text string) {
@@ -79,6 +73,18 @@ func (c *Center) changeWallpaperState(text string) {
 		return
 	}
 	c.wallpaperState.SetText(text)
+}
+
+func (c *Center) GetData(index int) string {
+	item, err := c.view.data.at(index)
+	if err != nil {
+		item = ""
+	}
+	return item
+}
+
+func (c *Center) DataSize() int {
+	return c.view.data.Size()
 }
 
 func (c *Center) ShowAndRun() {

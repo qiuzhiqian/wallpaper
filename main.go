@@ -19,7 +19,6 @@ func main() {
 	c := NewCenter()
 	c.init(m)
 	m.setCenter(c)
-	c.SyncData()
 
 	go m.DownloadHandle()
 	go m.SettingHandle()

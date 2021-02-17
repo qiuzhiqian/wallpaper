@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"wallpaper-toolbox/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -11,12 +12,17 @@ import (
 
 type Preview struct {
 	obj  fyne.CanvasObject
-	data []string
+	foot *Foot
+	data *DataEngine
 }
 
 func NewPreview() *Preview {
+	dir, err := utils.GetImageDir()
+	if err != nil {
+		panic("err")
+	}
 	preview := &Preview{
-		data: make([]string, 0),
+		data: NewDataEngine(dir, []string{".png", ".jpg", ".jpeg"}),
 	}
 
 	preview.initListWidget()
@@ -24,9 +30,9 @@ func NewPreview() *Preview {
 	return preview
 }
 
-func (p *Preview) InitData(data []string) {
-	p.data = make([]string, len(data))
-	copy(p.data, data)
+func (p *Preview) Init() {
+	go p.EventHandle()
+	go p.data.Run()
 }
 
 func (p *Preview) initListWidget() {
@@ -35,25 +41,39 @@ func (p *Preview) initListWidget() {
 
 	list := widget.NewList(
 		func() int {
-			return len(p.data)
+			return p.data.Size()
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Template Object")
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
-			name := filepath.Base(p.data[id])
+			dataitem, err := p.data.at(id)
+			if err != nil {
+				return
+			}
+			name := filepath.Base(dataitem)
 			item.(*widget.Label).SetText(name)
 		},
 	)
 	list.OnSelected = func(id widget.ListItemID) {
-		logo := canvas.NewImageFromFile(p.data[id])
+		dataitem, err := p.data.at(id)
+		if err != nil {
+			return
+		}
+
+		logo := canvas.NewImageFromFile(dataitem)
 		logo.FillMode = canvas.ImageFillContain
 
 		content.Objects = []fyne.CanvasObject{logo}
 		content.Refresh()
 	}
 	list.OnUnselected = func(id widget.ListItemID) {
-		logo := canvas.NewImageFromFile(p.data[id])
+		dataitem, err := p.data.at(id)
+		if err != nil {
+			return
+		}
+
+		logo := canvas.NewImageFromFile(dataitem)
 		logo.FillMode = canvas.ImageFillContain
 
 		content.Objects = []fyne.CanvasObject{logo}
@@ -62,14 +82,27 @@ func (p *Preview) initListWidget() {
 
 	sp := container.NewHSplit(list, content)
 	sp.Offset = 0.2
-	p.obj = sp
+
+	p.foot = NewFoot()
+	p.foot.SetCount(p.data.Size())
+
+	p.obj = container.NewBorder(nil, p.foot.obj, nil, nil, sp)
 }
 
-func (p *Preview) AddDataItem(item string) {
-	if p.data == nil {
-		p.data = make([]string, 0)
+func (p *Preview) EventHandle() {
+	ch := make(chan DataEvent, 100)
+	p.data.Register(ch)
+
+	for ev := range ch {
+		switch ev.EventType {
+		case ADD:
+			//do add
+			p.obj.(*container.Split).Leading.Refresh()
+			p.foot.SetCount(p.data.Size())
+		case REMOVE:
+			// do remove
+			p.obj.(*container.Split).Leading.Refresh()
+			p.foot.SetCount(p.data.Size())
+		}
 	}
-	p.data = append(p.data, item)
-	// 添加后需要刷新，要不然ui不会变化
-	p.obj.(*container.Split).Leading.Refresh()
 }

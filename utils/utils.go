@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/user"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -50,4 +52,50 @@ func SaveFile(url, filename string) error {
 		return err
 	}
 	return nil
+}
+
+func GetImageDir() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(u.HomeDir, ".wallpaper", "wallpaper-toolbox"), nil
+}
+
+func GetConfigDir() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(u.HomeDir, ".config", "wallpaper-toolbox"), nil
+}
+
+func GetLocalFile(root string, filter []string) []string {
+	localList := make([]string, 0)
+	filepath.Walk(root, func(pathname string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.Mode().IsRegular() {
+			if IsFileMatch(pathname, filter) {
+				localList = append(localList, pathname)
+			}
+		}
+		return nil
+	})
+	return localList
+}
+
+func IsFileMatch(name string, filter []string) bool {
+	var match bool = false
+	ext := path.Ext(name)
+
+	for _, item := range filter {
+		if ext == item {
+			match = true
+			break
+		}
+	}
+
+	return match
 }

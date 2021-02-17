@@ -38,7 +38,7 @@ type ScreenSize struct {
 var defaultCfg Config = Config{
 	Version: "1.0.1",
 	Setting: Setting{
-		Period: 20,
+		Period: 5,
 	},
 	Wh: Wallhaven{
 		Period: 20,
