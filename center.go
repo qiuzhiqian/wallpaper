@@ -87,6 +87,10 @@ func (c *Center) DataSize() int {
 	return c.view.data.Size()
 }
 
+func (c *Center) SetShowName(name string) {
+	c.view.SetShowName(name)
+}
+
 func (c *Center) ShowAndRun() {
 	c.window.ShowAndRun()
 }

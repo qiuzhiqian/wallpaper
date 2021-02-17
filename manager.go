@@ -121,25 +121,24 @@ func (m *Manager) SettingHandle() {
 			continue
 		} else {
 			//先执行一遍
-			m.switchBg()
+			m.switchRandom()
 			break
 		}
 	}
 	for {
 		select {
 		case <-t.C:
-			m.switchBg()
+			m.switchRandom()
 		case <-m.nextCh:
-			m.switchBg()
+			m.switchRandom()
 		}
 	}
 }
 
-func (m *Manager) switchBg() {
+func (m *Manager) switchRandom() {
 	m.mux.Lock()
 	rand.Seed(time.Now().Unix())
 	index := rand.Intn(m.center.DataSize())
-	fmt.Println("index:", index)
 
 	name, err := m.center.view.data.at(index)
 	if err != nil {
@@ -149,7 +148,8 @@ func (m *Manager) switchBg() {
 	if err != nil {
 		fmt.Println("err:", err)
 	}
-	fmt.Println("set background success.")
+
+	m.center.SetShowName(filepath.Base(name))
 	m.mux.Unlock()
 }
 

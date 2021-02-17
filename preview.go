@@ -106,3 +106,7 @@ func (p *Preview) EventHandle() {
 		}
 	}
 }
+
+func (p *Preview) SetShowName(name string) {
+	p.foot.SetName(name)
+}
