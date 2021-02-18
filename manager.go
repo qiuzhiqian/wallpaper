@@ -125,12 +125,15 @@ func (m *Manager) SettingHandle() {
 			break
 		}
 	}
+	setCh := m.center.GetEventCh()
 	for {
 		select {
 		case <-t.C:
 			m.switchRandom()
 		case <-m.nextCh:
 			m.switchRandom()
+		case name := <-setCh:
+			m.switchByName(name)
 		}
 	}
 }
@@ -152,6 +155,16 @@ func (m *Manager) switchRandom() {
 	m.center.SetShowName(filepath.Base(name))
 	m.center.SetUpdateTime(time.Now())
 	m.mux.Unlock()
+}
+
+func (m *Manager) switchByName(name string) {
+	err := background.SetBg(name)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+
+	m.center.SetShowName(filepath.Base(name))
+	m.center.SetUpdateTime(time.Now())
 }
 
 func (m *Manager) Next() {

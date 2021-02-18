@@ -11,9 +11,12 @@ import (
 )
 
 type Preview struct {
-	obj  fyne.CanvasObject
-	foot *Foot
-	data *DataEngine
+	obj          fyne.CanvasObject
+	foot         *Foot
+	data         *DataEngine
+	listWidget   *widget.List
+	selectedName string
+	SetCh        chan string
 }
 
 func NewPreview() *Preview {
@@ -22,7 +25,8 @@ func NewPreview() *Preview {
 		panic("err")
 	}
 	preview := &Preview{
-		data: NewDataEngine(dir, []string{".png", ".jpg", ".jpeg"}),
+		data:  NewDataEngine(dir, []string{".png", ".jpg", ".jpeg"}),
+		SetCh: make(chan string, 0),
 	}
 
 	preview.initListWidget()
@@ -32,6 +36,7 @@ func NewPreview() *Preview {
 
 func (p *Preview) Init() {
 	go p.EventHandle()
+	go p.ClickedEventHandle()
 	go p.data.Run()
 }
 
@@ -39,7 +44,7 @@ func (p *Preview) initListWidget() {
 	// 用作容器，用来刷新图片预览。如果不用布局包裹起来，好像无法实时刷新。
 	content := container.NewMax()
 
-	list := widget.NewList(
+	p.listWidget = widget.NewList(
 		func() int {
 			return p.data.Size()
 		},
@@ -55,7 +60,7 @@ func (p *Preview) initListWidget() {
 			item.(*widget.Label).SetText(name)
 		},
 	)
-	list.OnSelected = func(id widget.ListItemID) {
+	p.listWidget.OnSelected = func(id widget.ListItemID) {
 		dataitem, err := p.data.at(id)
 		if err != nil {
 			return
@@ -66,9 +71,10 @@ func (p *Preview) initListWidget() {
 
 		content.Objects = []fyne.CanvasObject{logo}
 		content.Refresh()
+		p.selectedName = dataitem
 	}
-	list.OnUnselected = func(id widget.ListItemID) {
-		dataitem, err := p.data.at(id)
+	p.listWidget.OnUnselected = func(id widget.ListItemID) {
+		/*dataitem, err := p.data.at(id)
 		if err != nil {
 			return
 		}
@@ -77,10 +83,10 @@ func (p *Preview) initListWidget() {
 		logo.FillMode = canvas.ImageFillContain
 
 		content.Objects = []fyne.CanvasObject{logo}
-		content.Refresh()
+		content.Refresh()*/
 	}
 
-	sp := container.NewHSplit(list, content)
+	sp := container.NewHSplit(p.listWidget, content)
 	sp.Offset = 0.2
 
 	p.foot = NewFoot()
@@ -103,6 +109,19 @@ func (p *Preview) EventHandle() {
 			// do remove
 			p.obj.(*container.Split).Leading.Refresh()
 			p.foot.SetCount(p.data.Size())
+		}
+	}
+}
+
+func (p *Preview) ClickedEventHandle() {
+	ch := make(chan bool, 10)
+	p.foot.RegisterClickedEvent(ch)
+
+	for {
+		select {
+		case <-ch:
+			p.foot.SetName(p.selectedName)
+			p.SetCh <- p.selectedName
 		}
 	}
 }

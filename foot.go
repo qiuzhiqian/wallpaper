@@ -18,6 +18,8 @@ type Foot struct {
 	countLabel  *widget.Label
 	nameLabel   *widget.Label
 	updateLabel *widget.Label
+
+	ch []chan bool
 }
 
 func NewFoot() *Foot {
@@ -25,15 +27,24 @@ func NewFoot() *Foot {
 		count:      0,
 		name:       "",
 		updateTime: time.Now(),
+		ch:         make([]chan bool, 0),
 	}
 	foot.countLabel = widget.NewLabel(fmt.Sprintf("count: %d", foot.count))
 	foot.nameLabel = widget.NewLabel(foot.name)
 	foot.updateLabel = widget.NewLabel("update: " + foot.updateTime.Format("2006-01-02 15:04:05"))
 	infoWidget := container.NewGridWithRows(1, foot.countLabel, foot.nameLabel, foot.updateLabel)
 
-	btnSet := widget.NewButton("Set", func() {})
+	btnSet := widget.NewButton("Set", func() {
+		for _, ch := range foot.ch {
+			ch <- true
+		}
+	})
 	foot.obj = container.NewBorder(nil, nil, nil, btnSet, infoWidget)
 	return foot
+}
+
+func (f *Foot) RegisterClickedEvent(ch chan bool) {
+	f.ch = append(f.ch, ch)
 }
 
 func (f *Foot) GetCount() int {

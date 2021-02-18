@@ -63,6 +63,10 @@ func (c *Center) init(m *Manager) {
 	c.view.Init()
 }
 
+func (c *Center) GetEventCh() chan string {
+	return c.view.SetCh
+}
+
 func (c *Center) changeDownloadState(text string) {
 	if c.downloadState == nil {
 		return
