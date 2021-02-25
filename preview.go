@@ -103,11 +103,11 @@ func (p *Preview) EventHandle() {
 		switch ev.EventType {
 		case ADD:
 			//do add
-			p.obj.(*container.Split).Leading.Refresh()
+			p.obj.(*fyne.Container).Objects[4].Refresh()
 			p.foot.SetCount(p.data.Size())
 		case REMOVE:
 			// do remove
-			p.obj.(*container.Split).Leading.Refresh()
+			p.obj.(*fyne.Container).Objects[4].Refresh()
 			p.foot.SetCount(p.data.Size())
 		}
 	}

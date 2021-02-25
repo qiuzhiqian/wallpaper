@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
-	"wallpaper/utils"
+	"wallpaper-toolbox/utils"
 
 	"github.com/BurntSushi/toml"
 )

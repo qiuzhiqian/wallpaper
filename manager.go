@@ -12,7 +12,7 @@ import (
 	"wallpaper-toolbox/utils"
 	"wallpaper-toolbox/wallhaven"
 
-	"gitee.com/qiuzhiqian/downloader"
+	"gitee.com/qiuzhiqian/downloader/v2"
 )
 
 var ErrNeedSkip = errors.New("file exist need skip")

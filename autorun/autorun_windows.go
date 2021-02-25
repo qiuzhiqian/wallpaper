@@ -2,7 +2,7 @@ package autorun
 
 import (
 	"strings"
-	"wallpaper/utils"
+	"wallpaper-toolbox/utils"
 
 	"golang.org/x/sys/windows/registry"
 )

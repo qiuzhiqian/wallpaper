@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-	"wallpaper/utils"
+	"wallpaper-toolbox/utils"
 )
 
 func TestWallPaperFlash(tt *testing.T) {
