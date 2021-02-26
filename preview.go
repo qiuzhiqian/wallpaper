@@ -17,6 +17,7 @@ type Preview struct {
 	listWidget   *widget.List
 	selectedName string
 	SetCh        chan string
+	content      *fyne.Container
 }
 
 func NewPreview() *Preview {
@@ -42,7 +43,7 @@ func (p *Preview) Init() {
 
 func (p *Preview) initListWidget() {
 	// 用作容器，用来刷新图片预览。如果不用布局包裹起来，好像无法实时刷新。
-	content := container.NewMax()
+	p.content = container.NewMax()
 
 	p.listWidget = widget.NewList(
 		func() int {
@@ -69,8 +70,8 @@ func (p *Preview) initListWidget() {
 		logo := canvas.NewImageFromFile(dataitem)
 		logo.FillMode = canvas.ImageFillContain
 
-		content.Objects = []fyne.CanvasObject{logo}
-		content.Refresh()
+		p.content.Objects = []fyne.CanvasObject{logo}
+		p.content.Refresh()
 		p.selectedName = dataitem
 	}
 	p.listWidget.OnUnselected = func(id widget.ListItemID) {
@@ -86,7 +87,7 @@ func (p *Preview) initListWidget() {
 		content.Refresh()*/
 	}
 
-	sp := container.NewHSplit(p.listWidget, content)
+	sp := container.NewHSplit(p.listWidget, p.content)
 	sp.Offset = 0.2
 
 	p.foot = NewFoot()
@@ -103,11 +104,11 @@ func (p *Preview) EventHandle() {
 		switch ev.EventType {
 		case ADD:
 			//do add
-			p.obj.(*fyne.Container).Objects[4].Refresh()
+			p.content.Refresh()
 			p.foot.SetCount(p.data.Size())
 		case REMOVE:
 			// do remove
-			p.obj.(*fyne.Container).Objects[4].Refresh()
+			p.content.Refresh()
 			p.foot.SetCount(p.data.Size())
 		}
 	}
