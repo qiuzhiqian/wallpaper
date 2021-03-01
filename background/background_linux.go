@@ -52,6 +52,11 @@ func setBgForKDE(file string) error {
 }
 
 func setBgForDDE(file string) error {
+	urlFile, err := filepath.Abs(file)
+	if err != nil {
+		return err
+	}
+
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		panic(err)
@@ -67,19 +72,18 @@ func setBgForDDE(file string) error {
 		return fmt.Errorf("monitor is empty")
 	}
 
-	m, err := conn.Object("com.deepin.daemon.Display", monitors[0]).GetProperty("com.deepin.daemon.Display.Monitor.Name")
-	if err != nil {
-		return err
-	}
+	for _, monitor := range monitors {
+		m, err := conn.Object("com.deepin.daemon.Display", monitor).GetProperty("com.deepin.daemon.Display.Monitor.Name")
+		if err != nil {
+			return err
+		}
 
-	name := m.Value().(string)
-	urlFile, err := filepath.Abs(file)
-	if err != nil {
-		return err
-	}
-	call := conn.Object("com.deepin.daemon.Appearance", "/com/deepin/daemon/Appearance").Call("com.deepin.daemon.Appearance.SetMonitorBackground", 0, name, "file://"+urlFile)
-	if call.Err != nil {
-		return call.Err
+		name := m.Value().(string)
+
+		call := conn.Object("com.deepin.daemon.Appearance", "/com/deepin/daemon/Appearance").Call("com.deepin.daemon.Appearance.SetMonitorBackground", 0, name, "file://"+urlFile)
+		if call.Err != nil {
+			return call.Err
+		}
 	}
 
 	return nil
